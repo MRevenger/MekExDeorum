@@ -3,11 +3,13 @@
   "textures": {
     "particle": "mekexdeorum:block/advanced_sieve_factory_side",
     "front": "mekexdeorum:block/advanced_sieve_factory_front",
+    "front_bar": "mekexdeorum:block/advanced_sieve_factory_front_bar",
     "back": "mekexdeorum:block/advanced_sieve_factory_back",
     "side": "mekexdeorum:block/advanced_sieve_factory_side",
     "top_outer": "mekexdeorum:block/advanced_sieve_factory_top_outer",
     "top_inner": "mekexdeorum:block/advanced_sieve_factory_top_inner",
-    "bottom": "mekexdeorum:block/advanced_sieve_factory_bottom"
+    "bottom": "mekexdeorum:block/advanced_sieve_factory_bottom",
+    "shadow": "mekexdeorum:block/advanced_sieve_factory_top_inner"
   },
   "elements": [
     {
@@ -18,7 +20,7 @@
       ],
       "to": [
         16,
-        14,
+        15,
         16
       ],
       "faces": {
@@ -35,38 +37,65 @@
         "north": {
           "uv": [
             0,
-            2,
+            1,
             16,
             16
           ],
-          "texture": "#front"
+          "texture": "#front",
+          "cullface": "north"
         },
         "south": {
           "uv": [
             0,
-            2,
+            1,
             16,
             16
           ],
-          "texture": "#side"
+          "texture": "#back",
+          "cullface": "south"
         },
         "west": {
           "uv": [
             0,
-            2,
+            1,
             16,
             16
           ],
-          "texture": "#side"
+          "texture": "#side",
+          "cullface": "west"
         },
         "east": {
           "uv": [
             0,
-            2,
+            1,
             16,
             16
           ],
-          "texture": "#side"
+          "texture": "#side",
+          "cullface": "east"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        0,
+        -0.02
+      ],
+      "to": [
+        16,
+        16,
+        0
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            16
+          ],
+          "texture": "#front"
         }
       }
     },
@@ -74,6 +103,29 @@
       "from": [
         0,
         14,
+        -0.04
+      ],
+      "to": [
+        16,
+        16,
+        -0.02
+      ],
+      "faces": {
+        "north": {
+          "uv": [
+            0,
+            0,
+            16,
+            2
+          ],
+          "texture": "#front_bar"
+        }
+      }
+    },
+    {
+      "from": [
+        0,
+        15,
         0
       ],
       "to": [
@@ -97,7 +149,7 @@
             0,
             0,
             16,
-            2
+            1
           ],
           "texture": "#front"
         },
@@ -106,16 +158,34 @@
             0,
             0,
             16,
-            14
+            1
           ],
           "texture": "#top_inner"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            1
+          ],
+          "texture": "#side"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            1
+          ],
+          "texture": "#side"
         }
       }
     },
     {
       "from": [
         0,
-        14,
+        15,
         14
       ],
       "to": [
@@ -137,27 +207,45 @@
         "south": {
           "uv": [
             0,
-            0,
+            15,
             16,
-            2
+            16
           ],
           "texture": "#back"
         },
         "north": {
           "uv": [
             0,
-            2,
+            0,
             16,
-            16
+            1
           ],
           "texture": "#top_inner"
+        },
+        "west": {
+          "uv": [
+            0,
+            0,
+            2,
+            1
+          ],
+          "texture": "#side"
+        },
+        "east": {
+          "uv": [
+            0,
+            0,
+            2,
+            1
+          ],
+          "texture": "#side"
         }
       }
     },
     {
       "from": [
         0,
-        14,
+        15,
         2
       ],
       "to": [
@@ -180,17 +268,17 @@
           "uv": [
             0,
             0,
-            2,
-            16
+            12,
+            1
           ],
           "texture": "#side"
         },
         "east": {
           "uv": [
-            14,
             0,
-            16,
-            16
+            0,
+            12,
+            1
           ],
           "texture": "#top_inner"
         }
@@ -199,7 +287,7 @@
     {
       "from": [
         14,
-        14,
+        15,
         2
       ],
       "to": [
@@ -222,8 +310,8 @@
           "uv": [
             0,
             0,
-            2,
-            16
+            12,
+            1
           ],
           "texture": "#side"
         },
@@ -231,8 +319,8 @@
           "uv": [
             0,
             0,
-            2,
-            16
+            12,
+            1
           ],
           "texture": "#top_inner"
         }
@@ -240,24 +328,60 @@
     },
     {
       "from": [
-        2,
+        1,
         13,
-        2
+        1
       ],
       "to": [
-        14,
-        14,
-        14
+        15,
+        15,
+        15
       ],
       "faces": {
         "up": {
           "uv": [
-            2,
-            2,
-            14,
-            14
+            1,
+            1,
+            15,
+            15
           ],
           "texture": "#top_inner"
+        },
+        "north": {
+          "uv": [
+            1,
+            0,
+            15,
+            1
+          ],
+          "texture": "#shadow"
+        },
+        "south": {
+          "uv": [
+            1,
+            0,
+            15,
+            1
+          ],
+          "texture": "#shadow"
+        },
+        "west": {
+          "uv": [
+            1,
+            0,
+            15,
+            1
+          ],
+          "texture": "#shadow"
+        },
+        "east": {
+          "uv": [
+            1,
+            0,
+            15,
+            1
+          ],
+          "texture": "#shadow"
         }
       }
     }

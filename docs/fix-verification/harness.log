@@ -1,0 +1,243 @@
+[t40] requesting world 'f4verif' through WorldOpenFlows.openWorld
+[t56] world loaded (minecraft:overworld), waiting 60 ticks for chunks and the loading screen
+[t116] screen is clear; starting setup
+[t117] window 854x480 guiScale=2.0 (logical 427x240)
+[t117] layout: outputs=16
+  inputs=1 gui=176x212 columns=5 rows=4 outputAreaLeft=66 outputAreaWidth=90 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=130
+  inputs=3 gui=176x212 columns=5 rows=4 outputAreaLeft=66 outputAreaWidth=90 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=130
+  inputs=5 gui=176x212 columns=5 rows=4 outputAreaLeft=66 outputAreaWidth=90 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=130
+  inputs=7 gui=204x194 columns=7 rows=3 outputAreaLeft=62 outputAreaWidth=126 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=112
+  inputs=9 gui=240x176 columns=9 rows=2 outputAreaLeft=62 outputAreaWidth=162 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=94
+[t117] setblock 20, -54, 0 universal_sieve -> true, blockEntity=TileEntitySieve
+[t117] setblock 25, -54, 0 basic_sieve_factory -> true, blockEntity=TileEntitySieveFactory
+[t117] setblock 30, -54, 0 advanced_sieve_factory -> true, blockEntity=TileEntitySieveFactory
+[t117] setblock 35, -54, 0 elite_sieve_factory -> true, blockEntity=TileEntitySieveFactory
+[t117] setblock 40, -54, 0 ultimate_sieve_factory -> true, blockEntity=TileEntitySieveFactory
+[t197] setup settled at 30.50 -55.12 10.50
+[t202] grab model_universal_sieve_front.png at eye 20.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t202] screenshot callback: Saved screenshot as model_universal_sieve_front.png
+[t207] grab model_universal_sieve_back.png at eye 20.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t207] screenshot callback: Saved screenshot as model_universal_sieve_back.png
+[t212] grab model_universal_sieve_left.png at eye 16.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t212] screenshot callback: Saved screenshot as model_universal_sieve_left.png
+[t217] grab model_universal_sieve_right.png at eye 24.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t217] screenshot callback: Saved screenshot as model_universal_sieve_right.png
+[t222] grab model_universal_sieve_top.png at eye 20.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t222] screenshot callback: Saved screenshot as model_universal_sieve_top.png
+[t227] grab model_universal_sieve_bottom.png at eye 20.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t227] screenshot callback: Saved screenshot as model_universal_sieve_bottom.png
+[t232] grab model_universal_sieve_diagonal_left.png at eye 17.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t232] screenshot callback: Saved screenshot as model_universal_sieve_diagonal_left.png
+[t237] grab model_universal_sieve_diagonal_right.png at eye 23.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t237] screenshot callback: Saved screenshot as model_universal_sieve_diagonal_right.png
+[t242] grab model_basic_sieve_factory_front.png at eye 25.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t242] screenshot callback: Saved screenshot as model_basic_sieve_factory_front.png
+[t247] grab model_basic_sieve_factory_back.png at eye 25.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t247] screenshot callback: Saved screenshot as model_basic_sieve_factory_back.png
+[t252] grab model_basic_sieve_factory_left.png at eye 21.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t252] screenshot callback: Saved screenshot as model_basic_sieve_factory_left.png
+[t257] grab model_basic_sieve_factory_right.png at eye 29.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t257] screenshot callback: Saved screenshot as model_basic_sieve_factory_right.png
+[t262] grab model_basic_sieve_factory_top.png at eye 25.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t262] screenshot callback: Saved screenshot as model_basic_sieve_factory_top.png
+[t267] grab model_basic_sieve_factory_bottom.png at eye 25.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t267] screenshot callback: Saved screenshot as model_basic_sieve_factory_bottom.png
+[t272] grab model_basic_sieve_factory_diagonal_left.png at eye 22.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t272] screenshot callback: Saved screenshot as model_basic_sieve_factory_diagonal_left.png
+[t277] grab model_basic_sieve_factory_diagonal_right.png at eye 28.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t277] screenshot callback: Saved screenshot as model_basic_sieve_factory_diagonal_right.png
+[t282] grab model_advanced_sieve_factory_front.png at eye 30.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t282] screenshot callback: Saved screenshot as model_advanced_sieve_factory_front.png
+[t287] grab model_advanced_sieve_factory_back.png at eye 30.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t287] screenshot callback: Saved screenshot as model_advanced_sieve_factory_back.png
+[t292] grab model_advanced_sieve_factory_left.png at eye 26.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t292] screenshot callback: Saved screenshot as model_advanced_sieve_factory_left.png
+[t297] grab model_advanced_sieve_factory_right.png at eye 34.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t297] screenshot callback: Saved screenshot as model_advanced_sieve_factory_right.png
+[t302] grab model_advanced_sieve_factory_top.png at eye 30.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t302] screenshot callback: Saved screenshot as model_advanced_sieve_factory_top.png
+[t307] grab model_advanced_sieve_factory_bottom.png at eye 30.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t307] screenshot callback: Saved screenshot as model_advanced_sieve_factory_bottom.png
+[t312] grab model_advanced_sieve_factory_diagonal_left.png at eye 27.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t312] screenshot callback: Saved screenshot as model_advanced_sieve_factory_diagonal_left.png
+[t317] grab model_advanced_sieve_factory_diagonal_right.png at eye 33.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t317] screenshot callback: Saved screenshot as model_advanced_sieve_factory_diagonal_right.png
+[t322] grab model_elite_sieve_factory_front.png at eye 35.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t322] screenshot callback: Saved screenshot as model_elite_sieve_factory_front.png
+[t327] grab model_elite_sieve_factory_back.png at eye 35.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t327] screenshot callback: Saved screenshot as model_elite_sieve_factory_back.png
+[t332] grab model_elite_sieve_factory_left.png at eye 31.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t332] screenshot callback: Saved screenshot as model_elite_sieve_factory_left.png
+[t337] grab model_elite_sieve_factory_right.png at eye 39.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t337] screenshot callback: Saved screenshot as model_elite_sieve_factory_right.png
+[t342] grab model_elite_sieve_factory_top.png at eye 35.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t342] screenshot callback: Saved screenshot as model_elite_sieve_factory_top.png
+[t347] grab model_elite_sieve_factory_bottom.png at eye 35.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t347] screenshot callback: Saved screenshot as model_elite_sieve_factory_bottom.png
+[t352] grab model_elite_sieve_factory_diagonal_left.png at eye 32.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t352] screenshot callback: Saved screenshot as model_elite_sieve_factory_diagonal_left.png
+[t357] grab model_elite_sieve_factory_diagonal_right.png at eye 38.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t357] screenshot callback: Saved screenshot as model_elite_sieve_factory_diagonal_right.png
+[t362] grab model_ultimate_sieve_factory_front.png at eye 40.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t362] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_front.png
+[t367] grab model_ultimate_sieve_factory_back.png at eye 40.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t367] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_back.png
+[t372] grab model_ultimate_sieve_factory_left.png at eye 36.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t372] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_left.png
+[t377] grab model_ultimate_sieve_factory_right.png at eye 44.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t377] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_right.png
+[t382] grab model_ultimate_sieve_factory_top.png at eye 40.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t382] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_top.png
+[t387] grab model_ultimate_sieve_factory_bottom.png at eye 40.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t387] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_bottom.png
+[t392] grab model_ultimate_sieve_factory_diagonal_left.png at eye 37.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t392] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_diagonal_left.png
+[t397] grab model_ultimate_sieve_factory_diagonal_right.png at eye 43.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t397] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_diagonal_right.png
+[t398] model shots done (40 screenshots so far)
+[t399] asked the server to open the real GUI of universal_sieve
+[t407] universal_sieve: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t411] grab gui_universal_sieve.png at eye 20.50 -53.50 4.00 yaw -180.00 pitch 0.00 screen=GuiSieve
+[t411] screenshot callback: Saved screenshot as gui_universal_sieve.png
+[t412] asked the server to open the real GUI of basic_sieve_factory
+[t420] basic_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t424] grab gui_basic_sieve_factory.png at eye 25.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t424] screenshot callback: Saved screenshot as gui_basic_sieve_factory.png
+[t425] asked the server to open the real GUI of advanced_sieve_factory
+[t433] advanced_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t437] grab gui_advanced_sieve_factory.png at eye 30.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t437] screenshot callback: Saved screenshot as gui_advanced_sieve_factory.png
+[t438] asked the server to open the real GUI of elite_sieve_factory
+[t446] elite_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t450] grab gui_elite_sieve_factory.png at eye 35.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t450] screenshot callback: Saved screenshot as gui_elite_sieve_factory.png
+[t451] asked the server to open the real GUI of ultimate_sieve_factory
+[t459] ultimate_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t463] grab gui_ultimate_sieve_factory.png at eye 40.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t463] screenshot callback: Saved screenshot as gui_ultimate_sieve_factory.png
+[t464] HARNESS DONE, 45 screenshots; leaving the game running
+[t40] requesting world 'f4verif' through WorldOpenFlows.openWorld
+[t56] world loaded (minecraft:overworld), waiting 60 ticks for chunks and the loading screen
+[t116] screen is clear; starting setup
+[t117] window 854x480 guiScale=2.0 (logical 427x240)
+[t117] layout: outputs=16
+  inputs=1 gui=176x212 columns=5 rows=4 outputAreaLeft=66 outputAreaWidth=90 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=130
+  inputs=3 gui=176x212 columns=5 rows=4 outputAreaLeft=66 outputAreaWidth=90 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=130
+  inputs=5 gui=176x212 columns=5 rows=4 outputAreaLeft=66 outputAreaWidth=90 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=130
+  inputs=7 gui=204x194 columns=7 rows=3 outputAreaLeft=62 outputAreaWidth=126 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=112
+  inputs=9 gui=240x176 columns=9 rows=2 outputAreaLeft=62 outputAreaWidth=162 progressY=35 progressHeight=11 arrowBottom=46 outputY=50 inventoryY=94
+[t117] setblock 20, -54, 0 universal_sieve -> false, blockEntity=TileEntitySieve
+[t117] setblock 25, -54, 0 basic_sieve_factory -> false, blockEntity=TileEntitySieveFactory
+[t117] setblock 30, -54, 0 advanced_sieve_factory -> false, blockEntity=TileEntitySieveFactory
+[t117] setblock 35, -54, 0 elite_sieve_factory -> false, blockEntity=TileEntitySieveFactory
+[t117] setblock 40, -54, 0 ultimate_sieve_factory -> false, blockEntity=TileEntitySieveFactory
+[t197] setup settled at 30.50 -55.12 10.50
+[t202] grab model_universal_sieve_front.png at eye 20.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t202] screenshot callback: Saved screenshot as model_universal_sieve_front.png
+[t207] grab model_universal_sieve_back.png at eye 20.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t207] screenshot callback: Saved screenshot as model_universal_sieve_back.png
+[t212] grab model_universal_sieve_left.png at eye 16.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t212] screenshot callback: Saved screenshot as model_universal_sieve_left.png
+[t217] grab model_universal_sieve_right.png at eye 24.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t217] screenshot callback: Saved screenshot as model_universal_sieve_right.png
+[t222] grab model_universal_sieve_top.png at eye 20.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t222] screenshot callback: Saved screenshot as model_universal_sieve_top.png
+[t227] grab model_universal_sieve_bottom.png at eye 20.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t227] screenshot callback: Saved screenshot as model_universal_sieve_bottom.png
+[t232] grab model_universal_sieve_diagonal_left.png at eye 17.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t232] screenshot callback: Saved screenshot as model_universal_sieve_diagonal_left.png
+[t237] grab model_universal_sieve_diagonal_right.png at eye 23.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t237] screenshot callback: Saved screenshot as model_universal_sieve_diagonal_right.png
+[t242] grab model_basic_sieve_factory_front.png at eye 25.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t242] screenshot callback: Saved screenshot as model_basic_sieve_factory_front.png
+[t247] grab model_basic_sieve_factory_back.png at eye 25.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t247] screenshot callback: Saved screenshot as model_basic_sieve_factory_back.png
+[t252] grab model_basic_sieve_factory_left.png at eye 21.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t252] screenshot callback: Saved screenshot as model_basic_sieve_factory_left.png
+[t257] grab model_basic_sieve_factory_right.png at eye 29.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t257] screenshot callback: Saved screenshot as model_basic_sieve_factory_right.png
+[t262] grab model_basic_sieve_factory_top.png at eye 25.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t262] screenshot callback: Saved screenshot as model_basic_sieve_factory_top.png
+[t267] grab model_basic_sieve_factory_bottom.png at eye 25.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t267] screenshot callback: Saved screenshot as model_basic_sieve_factory_bottom.png
+[t272] grab model_basic_sieve_factory_diagonal_left.png at eye 22.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t272] screenshot callback: Saved screenshot as model_basic_sieve_factory_diagonal_left.png
+[t277] grab model_basic_sieve_factory_diagonal_right.png at eye 28.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t277] screenshot callback: Saved screenshot as model_basic_sieve_factory_diagonal_right.png
+[t282] grab model_advanced_sieve_factory_front.png at eye 30.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t282] screenshot callback: Saved screenshot as model_advanced_sieve_factory_front.png
+[t287] grab model_advanced_sieve_factory_back.png at eye 30.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t287] screenshot callback: Saved screenshot as model_advanced_sieve_factory_back.png
+[t292] grab model_advanced_sieve_factory_left.png at eye 26.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t292] screenshot callback: Saved screenshot as model_advanced_sieve_factory_left.png
+[t297] grab model_advanced_sieve_factory_right.png at eye 34.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t297] screenshot callback: Saved screenshot as model_advanced_sieve_factory_right.png
+[t302] grab model_advanced_sieve_factory_top.png at eye 30.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t302] screenshot callback: Saved screenshot as model_advanced_sieve_factory_top.png
+[t307] grab model_advanced_sieve_factory_bottom.png at eye 30.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t307] screenshot callback: Saved screenshot as model_advanced_sieve_factory_bottom.png
+[t312] grab model_advanced_sieve_factory_diagonal_left.png at eye 27.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t312] screenshot callback: Saved screenshot as model_advanced_sieve_factory_diagonal_left.png
+[t317] grab model_advanced_sieve_factory_diagonal_right.png at eye 33.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t317] screenshot callback: Saved screenshot as model_advanced_sieve_factory_diagonal_right.png
+[t322] grab model_elite_sieve_factory_front.png at eye 35.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t322] screenshot callback: Saved screenshot as model_elite_sieve_factory_front.png
+[t327] grab model_elite_sieve_factory_back.png at eye 35.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t327] screenshot callback: Saved screenshot as model_elite_sieve_factory_back.png
+[t332] grab model_elite_sieve_factory_left.png at eye 31.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t332] screenshot callback: Saved screenshot as model_elite_sieve_factory_left.png
+[t337] grab model_elite_sieve_factory_right.png at eye 39.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t337] screenshot callback: Saved screenshot as model_elite_sieve_factory_right.png
+[t342] grab model_elite_sieve_factory_top.png at eye 35.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t342] screenshot callback: Saved screenshot as model_elite_sieve_factory_top.png
+[t347] grab model_elite_sieve_factory_bottom.png at eye 35.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t347] screenshot callback: Saved screenshot as model_elite_sieve_factory_bottom.png
+[t352] grab model_elite_sieve_factory_diagonal_left.png at eye 32.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t352] screenshot callback: Saved screenshot as model_elite_sieve_factory_diagonal_left.png
+[t357] grab model_elite_sieve_factory_diagonal_right.png at eye 38.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t357] screenshot callback: Saved screenshot as model_elite_sieve_factory_diagonal_right.png
+[t362] grab model_ultimate_sieve_factory_front.png at eye 40.50 -53.50 -3.50 yaw 0.00 pitch 0.00 screen=null
+[t362] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_front.png
+[t367] grab model_ultimate_sieve_factory_back.png at eye 40.50 -53.50 4.50 yaw -180.00 pitch 0.00 screen=null
+[t367] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_back.png
+[t372] grab model_ultimate_sieve_factory_left.png at eye 36.50 -53.50 0.50 yaw -90.00 pitch 0.00 screen=null
+[t372] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_left.png
+[t377] grab model_ultimate_sieve_factory_right.png at eye 44.50 -53.50 0.50 yaw 90.00 pitch 0.00 screen=null
+[t377] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_right.png
+[t382] grab model_ultimate_sieve_factory_top.png at eye 40.50 -49.50 0.50 yaw 0.00 pitch 90.00 screen=null
+[t382] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_top.png
+[t387] grab model_ultimate_sieve_factory_bottom.png at eye 40.50 -57.50 0.50 yaw 0.00 pitch -90.00 screen=null
+[t387] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_bottom.png
+[t392] grab model_ultimate_sieve_factory_diagonal_left.png at eye 37.67 -53.50 -2.33 yaw -45.00 pitch 0.00 screen=null
+[t392] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_diagonal_left.png
+[t397] grab model_ultimate_sieve_factory_diagonal_right.png at eye 43.33 -53.50 -2.33 yaw 45.00 pitch 0.00 screen=null
+[t397] screenshot callback: Saved screenshot as model_ultimate_sieve_factory_diagonal_right.png
+[t398] model shots done (40 screenshots so far)
+[t399] asked the server to open the real GUI of universal_sieve
+[t407] universal_sieve: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t411] grab gui_universal_sieve.png at eye 20.50 -53.50 4.00 yaw -180.00 pitch 0.00 screen=GuiSieve
+[t411] screenshot callback: Saved screenshot as gui_universal_sieve.png
+[t412] asked the server to open the real GUI of basic_sieve_factory
+[t420] basic_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t424] grab gui_basic_sieve_factory.png at eye 25.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t424] screenshot callback: Saved screenshot as gui_basic_sieve_factory.png
+[t425] asked the server to open the real GUI of advanced_sieve_factory
+[t433] advanced_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t437] grab gui_advanced_sieve_factory.png at eye 30.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t437] screenshot callback: Saved screenshot as gui_advanced_sieve_factory.png
+[t438] asked the server to open the real GUI of elite_sieve_factory
+[t446] elite_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t450] grab gui_elite_sieve_factory.png at eye 35.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t450] screenshot callback: Saved screenshot as gui_elite_sieve_factory.png
+[t451] asked the server to open the real GUI of ultimate_sieve_factory
+[t459] ultimate_sieve_factory: real container screen is up (com.mekexdeorum.client.gui.GuiSieve)
+[t463] grab gui_ultimate_sieve_factory.png at eye 40.50 -53.50 4.00 yaw -180.00 pitch -0.00 screen=GuiSieve
+[t463] screenshot callback: Saved screenshot as gui_ultimate_sieve_factory.png
+[t464] GUI shots done (45 screenshots); starting the functional probe
+[t465] probe setup (string mesh, 16 sand, paused with 10 dirt parked, energy injected): energy=20000 progress=[0] requiredTicks=[0] batchSize=[0] paused=[1] overflow=[{amount:10L,item:{count:1,id:"minecraft:dirt"}}] slots=[0 exdeorum:string_mesh x1] [1 minecraft:sand x16] 
+[t485] probe after 20 ticks (the parked dirt should have drained and unpaused): energy=20000 progress=[20] requiredTicks=[100] batchSize=[1] paused=[0] overflow=[] slots=[0 exdeorum:string_mesh x1] [1 minecraft:sand x16] [2 minecraft:dirt x10] 
+[t805] probe after ~320 more ticks (a completed sift should show its results): energy=19400 progress=[40] requiredTicks=[100] batchSize=[1] paused=[0] overflow=[] slots=[0 exdeorum:string_mesh x1] [1 minecraft:sand x13] [2 minecraft:dirt x10] [3 minecraft:flint x2] [4 minecraft:iron_nugget x1] 
+[t815] probe baseline (plain iron mesh, 8 sand): energy=20000 progress=[0] requiredTicks=[0] batchSize=[0] paused=[0] overflow=[] slots=[0 exdeorum:iron_mesh x1] [1 minecraft:sand x8] [2 minecraft:dirt x10] [3 minecraft:flint x2] [4 minecraft:iron_nugget x1] 
+[t823] probe plain iron mesh, bar computed by the machine: energy=20000 progress=[8] requiredTicks=[100] batchSize=[8] paused=[0] overflow=[] slots=[0 exdeorum:iron_mesh x1] [1 minecraft:sand x8] [2 minecraft:dirt x10] [3 minecraft:flint x2] [4 minecraft:iron_nugget x1] 
+[t831] PROBE DONE; HARNESS DONE, 45 screenshots; leaving the game running
+[t831] probe efficiency V iron mesh, bar computed by the machine: energy=20000 progress=[8] requiredTicks=[58] batchSize=[8] paused=[0] overflow=[] slots=[0 exdeorum:iron_mesh x1] [1 minecraft:sand x8] [2 minecraft:dirt x10] [3 minecraft:flint x2] [4 minecraft:iron_nugget x1] 

@@ -79,7 +79,9 @@ Ex Deorum 的六种筛网**本身没有耐久度**。因此打开 `meshDamage` �
 
 ```powershell
 pwsh -File build.ps1 build     # 产物：build/libs/mekexDeorum-1.0.0+mc1.21.1.jar
-pwsh -File build.ps1 test      # 54 个单元测试，不需要 Minecraft 类路径
+pwsh -File build.ps1 test      # 64 个单元测试，不需要 Minecraft 类路径
+pwsh -File build.ps1 @('clean')            # clean 必须单独一次调用
+pwsh -File build.ps1 @('build')
 ```
 
 `build.ps1` 负责三件环境相关的事：
@@ -95,9 +97,11 @@ pwsh -File build.ps1 test      # 54 个单元测试，不需要 Minecraft 类路
 pwsh -File build.ps1 @('test','--rerun-tasks')
 ```
 
+`clean` **不要**和别的任务写在同一次调用里：它与 `processResources` 之间没有顺序约束，Gradle 可能并发执行，于是 `clean` 会在 `processResources` 计算哈希时删掉 `pack.mcmeta`（报 `Failed to create MD5 hash for file … as it does not exist`）。这是竞态，所以时好时坏，请分行调用。
+
 ## 纹理
 
-`tools/gen_textures.py`（30 张 16×16 方块纹理）与 `tools/gen_icon.py`（256×256 图标）用 Pillow 逐像素程序化生成，可重复执行且结果完全一致：
+`tools/gen_textures.py`（35 张 16×16 方块纹理：5 台机器 × 7 个面，含正面顶端横条）与 `tools/gen_icon.py`（256×256 图标）用 Pillow 逐像素程序化生成，可重复执行且结果完全一致：
 
 ```powershell
 python tools/gen_textures.py

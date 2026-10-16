@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """MekExDeorum mod icon (256x256 RGBA).
 
-Content per 任务提示词.md 6.5: an Ex Deorum style sieve outline, the Mekanism
-style "Mek" superscript in the top-right corner, a Mekanism steel panel
-background, a blue accent bar and a horizontal line underneath. Redrawn in the
-new texture style: it imports the shared palette and the same recessed-surface
-routine as gen_textures.py, so the mesh inside the sieve is literally the block
-top_inner recipe at 8x the pixel scale.
+Content per the earlier spec: an Ex Deorum style sieve outline, the Mekanism style
+"Mek" superscript in the top-right corner, a steel panel background, a blue accent
+bar, a horizontal rule and - new in P3 - a four-segment tier bar that carries the
+same calibrated tier colours as the block textures.  It imports the shared palette
+and the recessed-surface routine from gen_textures.py, so the mesh inside the sieve
+is literally the block `top_inner` recipe at 8x the pixel scale and every colour is
+a value measured from the user's reference icons.
 
 Writes MekExDeorum/icon.png, MekExDeorum/src/main/resources/icon.png and the
 human-verification preview _plan/previews/icon_preview.png. Deterministic.
@@ -23,8 +24,9 @@ from PIL import Image, ImageDraw
 
 sys.dont_write_bytecode = True   # importing the shared palette must not litter tools/ with __pycache__
 
-from gen_textures import (ACCENT, ACCENT_LT, EDGE_DK, EDGE_HI, EDGE_LT, PANEL_BASE,
-                          PANEL_FIELD, RIM_GROOVE, SHADOW, recess_surface)
+from gen_textures import (ACCENT, ACCENT_LT, FRAME_DEEP, FRAME_MID, GROOVE, PANEL,
+                          PANEL_HI, PANEL_LIGHT, PANEL_MID, SHADOW, TIER_BAR,
+                          recess_surface)
 
 SIZE = 256
 
@@ -47,6 +49,7 @@ FRAME_BEVEL = 4
 ACCENT_BAR = (48, 220, 207, 227)
 ACCENT_BAR_SHADOW = (48, 228, 207, 229)
 RULE = (40, 236, 215, 238)
+TIER_STRIP = (40, 241, 215, 248)      # four equal segments, tiers 1..4
 
 # 5x7 glyphs (same shapes as the legacy 1.0.4 gen_icon.js), only "Mek" is needed.
 FONT5x7 = {
@@ -59,6 +62,10 @@ SUP_STRETCH = 3
 SUP_RIGHT = RECESS[2] - 10     # = 235, 10px margin inside the recess
 SUP_TOP = 26
 SUP_SHADOW = (3, 3)
+
+
+def hexs(colour):
+    return "#%02X%02X%02X" % tuple(colour)
 
 
 def draw_text(d, text, x0, y0, sx, sy, colour):
@@ -82,42 +89,52 @@ def superscript_width(text, sx):
     return len(text) * 6 * sx - sx
 
 
+def tier_segments(rect=TIER_STRIP):
+    """The four tier chips, left to right = tiers 1..4."""
+    x0, y0, x1, y1 = rect
+    width = (x1 - x0 + 1) // 4
+    return [((x0 + i * width, y0, x0 + (i + 1) * width - 1, y1), TIER_BAR[i + 1])
+            for i in range(4)]
+
+
 def build_icon(grid_alpha):
-    img = Image.new("RGBA", (SIZE, SIZE), PANEL_BASE + (255,))
+    img = Image.new("RGBA", (SIZE, SIZE), FRAME_MID + (255,))
     d = ImageDraw.Draw(img)
 
     # steel panel: light top/left bevel, dark bottom/right, brighter outer edge
-    d.rectangle((0, 0, SIZE - 1, SIZE - 1), outline=EDGE_LT + (255,), width=BEVEL)
-    d.rectangle((0, 0, SIZE - 1, SIZE - 1), outline=EDGE_HI + (255,), width=HI)
-    d.rectangle((0, SIZE - BEVEL, SIZE - 1, SIZE - 1), fill=EDGE_DK + (255,))
-    d.rectangle((SIZE - BEVEL, 0, SIZE - 1, SIZE - 1), fill=EDGE_DK + (255,))
+    d.rectangle((0, 0, SIZE - 1, SIZE - 1), outline=PANEL_MID + (255,), width=BEVEL)
+    d.rectangle((0, 0, SIZE - 1, SIZE - 1), outline=PANEL_HI + (255,), width=HI)
+    d.rectangle((0, SIZE - BEVEL, SIZE - 1, SIZE - 1), fill=FRAME_DEEP + (255,))
+    d.rectangle((SIZE - BEVEL, 0, SIZE - 1, SIZE - 1), fill=FRAME_DEEP + (255,))
 
     # inner recess with a groove shadow on its top/left
-    d.rectangle(RECESS, fill=PANEL_FIELD + (255,))
-    d.rectangle((RECESS[0], RECESS[1], RECESS[2], RECESS[1] + 5), fill=RIM_GROOVE + (255,))
-    d.rectangle((RECESS[0], RECESS[1], RECESS[0] + 5, RECESS[3]), fill=RIM_GROOVE + (255,))
+    d.rectangle(RECESS, fill=PANEL + (255,))
+    d.rectangle((RECESS[0], RECESS[1], RECESS[2], RECESS[1] + 5), fill=GROOVE + (255,))
+    d.rectangle((RECESS[0], RECESS[1], RECESS[0] + 5, RECESS[3]), fill=GROOVE + (255,))
 
     for (bx, by) in BOLTS:
-        d.rectangle((bx, by, bx + BOLT - 1, by + BOLT - 1), fill=EDGE_LT + (255,))
+        d.rectangle((bx, by, bx + BOLT - 1, by + BOLT - 1), fill=PANEL_LIGHT + (255,))
         d.rectangle((bx + BOLT - 3, by + BOLT - 3, bx + BOLT - 1, by + BOLT - 1),
-                    fill=EDGE_DK + (255,))
+                    fill=FRAME_DEEP + (255,))
 
     # sieve: steel ring outline
-    d.rectangle(FRAME, fill=EDGE_LT + (255,))
-    d.rectangle(FRAME, outline=EDGE_HI + (255,), width=FRAME_BEVEL)
+    d.rectangle(FRAME, fill=PANEL_LIGHT + (255,))
+    d.rectangle(FRAME, outline=PANEL_HI + (255,), width=FRAME_BEVEL)
     d.rectangle((FRAME[0], FRAME[3] - FRAME_BEVEL, FRAME[2], FRAME[3]),
-                fill=EDGE_DK + (255,))
+                fill=FRAME_DEEP + (255,))
     d.rectangle((FRAME[2] - FRAME_BEVEL, FRAME[1], FRAME[2], FRAME[3]),
-                fill=EDGE_DK + (255,))
+                fill=FRAME_DEEP + (255,))
 
     # sieve mesh: the top_inner recipe (radial gradient + baked white grid)
     mesh = recess_surface(MESH_SIZE, GRID, grid_alpha, border=2)
     img.paste(Image.fromarray(mesh, "RGB"), MESH_ORIGIN)
 
-    # blue accent bar + drop shadow + horizontal rule underneath
+    # blue accent bar + drop shadow, rule, and the four-calibrated-tier strip
     d.rectangle(ACCENT_BAR, fill=ACCENT + (255,))
     d.rectangle(ACCENT_BAR_SHADOW, fill=SHADOW + (255,))
-    d.rectangle(RULE, fill=EDGE_LT + (255,))
+    d.rectangle(RULE, fill=PANEL_LIGHT + (255,))
+    for rect, colour in tier_segments():
+        d.rectangle(rect, fill=colour + (255,))
 
     # "Mek" superscript, top-right corner
     sup_x = SUP_RIGHT - superscript_width("Mek", SUP_SCALE) + 1
@@ -151,8 +168,21 @@ def main(argv=None):
           "mesh_scale=8x (= block grid-spacing 4) superscript=Mek@%d,%d scale=%d stretch=%d"
           % (img.width, img.height, img.mode, GRID, args.grid_alpha,
              sup_pos[0], sup_pos[1], SUP_SCALE, SUP_STRETCH))
-    print("sieve frame=%s mesh=%s accent_bar=%s rule=%s"
-          % (FRAME, MESH, ACCENT_BAR, RULE))
+    print("sieve frame=%s mesh=%s accent_bar=%s rule=%s" % (FRAME, MESH, ACCENT_BAR, RULE))
+    print("palette: panel=%s recess=%s bevel=%s dark=%s accent=%s"
+          % (hexs(PANEL), hexs(PANEL_MID), hexs(PANEL_LIGHT), hexs(FRAME_DEEP), hexs(ACCENT)))
+    print("tier strip %s (40,%d)-(215,%d), four equal segments:"
+          % (TIER_STRIP, TIER_STRIP[1], TIER_STRIP[3]))
+    pixels = img.convert("RGB").load()
+    ok_tiers = True
+    for index, ((rx0, ry0, rx1, ry1), colour) in enumerate(tier_segments(), start=1):
+        cx, cy = (rx0 + rx1) // 2, (ry0 + ry1) // 2
+        got = pixels[cx, cy]
+        if got != colour:
+            ok_tiers = False
+        print("   x %3d..%3d  tier %d  %s  (sampled pixel %s)"
+              % (rx0, rx1, index, hexs(colour), hexs(got)))
+    print("verify tier strip shows the four calibrated bar colours = %s" % ok_tiers)
     digests = {}
     for t in targets:
         data = t.read_bytes()

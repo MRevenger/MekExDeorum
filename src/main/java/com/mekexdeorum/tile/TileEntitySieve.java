@@ -215,7 +215,7 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
 
         for (int i = 0; i < outputs; i++) {
             OversizedOutputSlot slot = OversizedOutputSlot.at(listener,
-                    SieveLayout.outputSlotX(i, outputs), SieveLayout.outputSlotY(i, outputs));
+                    SieveLayout.outputSlotX(i, inputs, outputs), SieveLayout.outputSlotY(i, inputs, outputs));
             outputSlots.add(slot);
             builder.addSlot(slot);
         }

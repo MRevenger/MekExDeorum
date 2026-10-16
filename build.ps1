@@ -12,6 +12,14 @@
 # ValueFromRemainingArguments, so `-GradleArgs @('clean','build')` binds only 'clean' and
 # then fails with "a positional parameter cannot be found that accepts argument 'build'".
 # A bare `--flag` is likewise taken for a PowerShell parameter name.
+#
+# Do NOT combine `clean` with other tasks in one invocation. `clean` has no ordering
+# constraint against `processResources`, so Gradle may run them at the same time and
+# `clean` can delete build/resources/main/pack.mcmeta while processResources is hashing
+# it: "Failed to create MD5 hash for file ... as it does not exist". It is a race, so it
+# passes sometimes. Run clean on its own line:
+#   pwsh -File build.ps1 @('clean')
+#   pwsh -File build.ps1 @('build')
 param(
     [Parameter(ValueFromRemainingArguments = $true)]
     [string[]]$GradleArgs = @('build')

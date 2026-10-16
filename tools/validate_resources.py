@@ -41,7 +41,7 @@ BLOCK_IDS = [
     "elite_sieve_factory",
     "ultimate_sieve_factory",
 ]
-FACES = ["front", "back", "side", "top_outer", "top_inner", "bottom"]
+FACES = ["front", "back", "side", "top_outer", "top_inner", "bottom", "front_bar"]
 MESH_ITEMS = [
     "exdeorum:string_mesh",
     "exdeorum:flint_mesh",
@@ -129,7 +129,7 @@ def check_json_parses(report: Report) -> None:
 
 
 # ----------------------------------------------------------------------------
-# check 2 - the 30 block textures and the two icons
+# check 2 - the per-machine block textures (six faces + the P3 front bar) and the two icons
 # ----------------------------------------------------------------------------
 
 def check_textures(report: Report) -> None:
@@ -169,7 +169,8 @@ def check_textures(report: Report) -> None:
                 icons += 1
 
     report.add("2 textures", not problems,
-               f"{checked}/30 block textures are 16x16 RGBA, {icons}/2 icons are 256x256 RGBA",
+               f"{checked}/{len(BLOCK_IDS) * len(FACES)} block textures are 16x16 RGBA, "
+               f"{icons}/2 icons are 256x256 RGBA",
                problems)
 
 
