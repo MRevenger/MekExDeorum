@@ -103,6 +103,8 @@ pwsh -File build.ps1 @('test','--rerun-tasks')
 
 `tools/gen_textures.py`（35 张 16×16 方块纹理：5 台机器 × 7 个面，含正面顶端横条）与 `tools/gen_icon.py`（256×256 图标）用 Pillow 逐像素程序化生成，可重复执行且结果完全一致：
 
+**等级横条**：通用筛矿机不带等级横条；四级工厂的纹理以通用筛矿机为基准，**仅正面顶端多一条 10×2 像素的短条**，颜色严格取 Mekanism 官方 `BaseTier` 值 —— 基础 `#5FFFB8`、高级 `#FF806A`、精英 `#4BF8FF`、终极 `#F787FF`。除这条短条外，四个工厂的七个面与通用筛矿机**逐字节相同**（含侧面、背面、顶面、底面）。
+
 ```powershell
 python tools/gen_textures.py
 python tools/gen_icon.py

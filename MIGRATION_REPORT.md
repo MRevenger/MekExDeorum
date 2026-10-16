@@ -2,7 +2,7 @@
 
 对应规格：`任务提示词.md`（下称「规格」）。本文档记录仓库迁移前后对比、重制实现与规格的偏差、以及逐项验证结果。
 
-> 后续修复轮（P1 箭头遮挡输出栏、P2 输出栏自适应、P3 Mekanism 风格模型与等级横条、P4 四角覆盖）见 `FIX_REPORT.md`；该轮的**真机截图**（5 套 GUI + 5 级方块八角度）在 `docs/fix-verification/`。
+> 后续修复轮（P1 箭头遮挡输出栏、P2 输出栏自适应、P3 Mekanism 风格模型与等级横条、P4 四角覆盖）见 `FIX_REPORT.md`；该轮的**真机截图**（5 套 GUI + 5 级方块八角度）在 `docs/fix-verification/`。第四轮（工厂正面顶端短条改用 Mekanism 官方 `BaseTier` 颜色）同样记录在 `FIX_REPORT.md` 末尾。
 
 - 重制版本：`1.0.0`（`mekexDeorum-1.0.0+mc1.21.1.jar`）
 - 平台：Minecraft 1.21.1 / NeoForge 21.1.250 / Java 21

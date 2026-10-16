@@ -3,8 +3,10 @@
 
 Content per the earlier spec: an Ex Deorum style sieve outline, the Mekanism style
 "Mek" superscript in the top-right corner, a steel panel background, a blue accent
-bar, a horizontal rule and - new in P3 - a four-segment tier bar that carries the
-same calibrated tier colours as the block textures.  It imports the shared palette
+bar, a horizontal rule and - since P3 - a four-segment tier bar.  The tier chips
+carry Mekanism's official BaseTier RGB, the very gen_textures.TIER_BAR constants the
+in-game factory front bars are painted with, so icon and blocks share one source of
+truth for tier colour.  It imports the shared palette
 and the recessed-surface routine from gen_textures.py, so the mesh inside the sieve
 is literally the block `top_inner` recipe at 8x the pixel scale and every colour is
 a value measured from the user's reference icons.
@@ -51,6 +53,18 @@ ACCENT_BAR_SHADOW = (48, 228, 207, 229)
 RULE = (40, 236, 215, 238)
 TIER_STRIP = (40, 241, 215, 248)      # four equal segments, tiers 1..4
 
+# The icon's four tier chips carry the OFFICIAL Mekanism tier colours - literally
+# gen_textures.TIER_BAR, the same object the in-game factory front bars are painted
+# with, which is built from BaseTier.java's BASIC/ADVANCED/ELITE/ULTIMATE
+# new int[]{95,255,184} / {255,128,106} / {75,248,255} / {247,135,255}.  Sharing
+# that one object is deliberate: there is no second literal copy anywhere, so the
+# icon and the block textures cannot drift apart again, and tier colour has a single
+# source of truth.
+# The round-3 muted/calibrated strip - chips #4A7C5F / #C73E37 / #3A7883 / #C04183,
+# i.e. the official colours times a gain calibrated against
+# basic_infuser_factory.png - is no longer used anywhere in the mod.  It survives
+# only as history in MIGRATION_REPORT.md and FIX_REPORT.md.
+
 # 5x7 glyphs (same shapes as the legacy 1.0.4 gen_icon.js), only "Mek" is needed.
 FONT5x7 = {
     "M": ("10001", "11011", "10101", "10101", "10001", "10001", "10001"),
@@ -90,7 +104,7 @@ def superscript_width(text, sx):
 
 
 def tier_segments(rect=TIER_STRIP):
-    """The four tier chips, left to right = tiers 1..4."""
+    """The four tier chips, left to right = tiers 1..4 (official BaseTier colours)."""
     x0, y0, x1, y1 = rect
     width = (x1 - x0 + 1) // 4
     return [((x0 + i * width, y0, x0 + (i + 1) * width - 1, y1), TIER_BAR[i + 1])
@@ -129,7 +143,7 @@ def build_icon(grid_alpha):
     mesh = recess_surface(MESH_SIZE, GRID, grid_alpha, border=2)
     img.paste(Image.fromarray(mesh, "RGB"), MESH_ORIGIN)
 
-    # blue accent bar + drop shadow, rule, and the four-calibrated-tier strip
+    # blue accent bar + drop shadow, rule, and the four official tier chips
     d.rectangle(ACCENT_BAR, fill=ACCENT + (255,))
     d.rectangle(ACCENT_BAR_SHADOW, fill=SHADOW + (255,))
     d.rectangle(RULE, fill=PANEL_LIGHT + (255,))
@@ -182,7 +196,7 @@ def main(argv=None):
             ok_tiers = False
         print("   x %3d..%3d  tier %d  %s  (sampled pixel %s)"
               % (rx0, rx1, index, hexs(colour), hexs(got)))
-    print("verify tier strip shows the four calibrated bar colours = %s" % ok_tiers)
+    print("verify tier strip shows the four official Mekanism tier colours = %s" % ok_tiers)
     digests = {}
     for t in targets:
         data = t.read_bytes()

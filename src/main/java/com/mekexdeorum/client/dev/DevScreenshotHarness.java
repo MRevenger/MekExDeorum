@@ -27,6 +27,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.GameType;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -44,9 +46,14 @@ import org.slf4j.Logger;
  * the marker file {@code screenshots-enabled.flag} exists in the run directory. When any one of them
  * is missing nothing at all happens: no world is opened, no block is touched, no screen is captured.
  *
- * <p>What it does, once enabled: opens the flat verification world, places the five machines on a
- * fixed grid, and captures genuine client renders through Minecraft's own {@link Screenshot}:
- * one GUI shot per tier and eight viewing angles per tier. Shots land in
+ * <p>What it does, once enabled: opens the flat verification world and captures genuine client renders
+ * through Minecraft's own {@link Screenshot}. It runs the <em>tier-row</em> phase first: the five
+ * machines are placed adjacent in a row (x = 20..24, z = {@link #ROW_Z}) and photographed front-on,
+ * diagonally, and once per tier up close, so that the tier-coloured bar on each factory front is
+ * comparable at a single viewing angle and a single lighting condition; the row is then cleared again
+ * so the later phases see exactly the world they saw before. Then the original phases run unchanged:
+ * the five machines on the fixed grid at z = 0, eight viewing angles per tier, and one GUI shot per
+ * tier. Shots land in
  * {@code <run>/screenshots/} together with {@code harness.log}, a line-by-line record of what was
  * done and of the layout numbers the screens were built from.
  *
@@ -70,6 +77,26 @@ public final class DevScreenshotHarness {
     private static final int MACHINE_Y = -54;
     private static final int[] MACHINE_X = {20, 25, 30, 35, 40};
 
+    /**
+     * The tier row: the five machines adjacent in x (so they touch) at the same y as the grid. The z is
+     * positive on purpose, because the front-on camera looks towards +Z: with z = {@code 30} the grid at
+     * z = 0 is behind the camera and cannot appear in the row shots' background.
+     */
+    private static final int ROW_START_X = 20;
+    private static final int ROW_Z = 30;
+    /** Fraction of the window width the 5-block row is framed to fill: front-on, closer, diagonal. */
+    private static final double ROW_FRONT_FRACTION = 0.75;
+    private static final double ROW_CLOSE_FRACTION = 0.90;
+    private static final double ROW_DIAGONAL_FRACTION = 0.80;
+    /** Distance from the front face for the per-tier close-ups. */
+    private static final double TIER_CLOSE_DISTANCE = 1.15;
+    /** The bar covers the top 2 of 16 model pixels of the front face, i.e. its centre sits here. */
+    private static final double BAR_CENTRE_Y = MACHINE_Y + 1.0 - 1.0 / 16.0;
+
+    private static final String[] ROW_SHOT_NAMES = {
+            "row_tiers_front.png", "row_tiers_front_close.png", "row_tiers_diagonal.png",
+            "bar_universal.png", "bar_basic.png", "bar_advanced.png", "bar_elite.png", "bar_ultimate.png"};
+
     /** Camera offsets from the block centre, one per viewing angle. */
     private static final double[][] ANGLES = {
             {0.0, 0.0, -4.0},   // front  (the block's default facing is north, -Z)
@@ -86,9 +113,20 @@ public final class DevScreenshotHarness {
             "universal_sieve", "basic_sieve_factory", "advanced_sieve_factory",
             "elite_sieve_factory", "ultimate_sieve_factory"};
 
+    /** Phase order: the tier row is captured first, then the original grid / GUI / probe phases. */
+    private static final int PHASE_WORLD = 0;
+    private static final int PHASE_ROW_SETUP = 1;
+    private static final int PHASE_ROW_SHOTS = 2;
+    private static final int PHASE_GRID_SETUP = 3;
+    private static final int PHASE_MODEL_SHOTS = 4;
+    private static final int PHASE_GUI_SHOTS = 5;
+    private static final int PHASE_PROBE = 6;
+
     private static final int WAIT_WORLD = 60;
     private static final int WAIT_SETTLE = 80;
+    private static final int WAIT_ROW_SETTLE = 100;
     private static final int WAIT_SHOT = 4;
+    private static final int WAIT_ROW_SHOT = 8;
     private static final int WAIT_GUI = 8;
     private static final int HARD_TICK_LIMIT = 8000;
 
@@ -112,23 +150,25 @@ public final class DevScreenshotHarness {
         }
         ticks++;
         try {
-            if (ticks > HARD_TICK_LIMIT && phase < 4) {
+            if (ticks > HARD_TICK_LIMIT && phase < PHASE_PROBE) {
                 log(mc, "HARD TICK LIMIT reached in phase " + phase + " step " + step + "; stopping");
-                phase = 4;
+                phase = PHASE_PROBE;
             }
             switch (phase) {
-                case 0 -> waitForWorld(mc);
-                case 1 -> setup(mc);
-                case 2 -> modelShots(mc);
-                case 3 -> guiShots(mc);
-                case 4 -> functionalProbe(mc);
+                case PHASE_WORLD -> waitForWorld(mc);
+                case PHASE_ROW_SETUP -> rowSetup(mc);
+                case PHASE_ROW_SHOTS -> rowShots(mc);
+                case PHASE_GRID_SETUP -> gridSetup(mc);
+                case PHASE_MODEL_SHOTS -> modelShots(mc);
+                case PHASE_GUI_SHOTS -> guiShots(mc);
+                case PHASE_PROBE -> functionalProbe(mc);
                 default -> {
                     // Finished: nothing further is done, the game is left running for collection.
                 }
             }
         } catch (Throwable throwable) {
             logThrowable(mc, "EXCEPTION in phase " + phase + " step " + step, throwable);
-            phase = 4;
+            phase = PHASE_PROBE;
         }
     }
 
@@ -157,8 +197,8 @@ public final class DevScreenshotHarness {
                 log(mc, "world loaded (" + mc.level.dimension().location() + "), waiting " + WAIT_WORLD
                         + " ticks for chunks and the loading screen");
             } else if (step == 1 && ticks >= nextTick && mc.screen == null) {
-                log(mc, "screen is clear; starting setup");
-                phase = 1;
+                log(mc, "screen is clear; starting the tier-row setup");
+                phase = PHASE_ROW_SETUP;
                 step = 0;
             }
             return;
@@ -176,10 +216,14 @@ public final class DevScreenshotHarness {
     }
 
     // ------------------------------------------------------------------
-    // Phase 1: place the machines and settle
+    // Phase 1: place the five machines adjacent in a row and verify them
     // ------------------------------------------------------------------
 
-    private static void setup(Minecraft mc) {
+    private static BlockPos rowPos(int tier) {
+        return new BlockPos(ROW_START_X + tier, MACHINE_Y, ROW_Z);
+    }
+
+    private static void rowSetup(Minecraft mc) {
         if (step == 0) {
             mc.options.hideGui = true;
             mc.options.bobView().set(false);
@@ -188,7 +232,6 @@ public final class DevScreenshotHarness {
                     + " guiScale=" + mc.getWindow().getGuiScale() + " (logical "
                     + mc.getWindow().getGuiScaledWidth() + "x" + mc.getWindow().getGuiScaledHeight() + ")");
             logLayout();
-            List<BlockRegistryObject<?, ?>> machines = MekExDeorumBlocks.machines();
             serverAction(mc, sp -> {
                 ServerLevel level = (ServerLevel) sp.level();
                 level.setDayTime(6000L);
@@ -198,7 +241,172 @@ public final class DevScreenshotHarness {
                 sp.getAbilities().mayfly = true;
                 sp.getAbilities().flying = true;
                 sp.onUpdateAbilities();
-                for (int tier = 0; tier < machines.size(); tier++) {
+                placeRow(mc, level);
+                verifyRow(mc, level);
+            });
+            // Stand in front of the middle of the row, so the whole row's chunks are loaded before shooting.
+            placePlayer(mc, ROW_START_X + 2.5, MACHINE_Y + 0.5, ROW_Z - 6.5, 0.0F, 0.0F);
+            step = 1;
+            nextTick = ticks + WAIT_ROW_SETTLE;
+        } else if (step == 1 && ticks >= nextTick) {
+            log(mc, "row settled at " + fmt(mc.player.getX()) + " " + fmt(mc.player.getY()) + " "
+                    + fmt(mc.player.getZ()) + "; starting the tier-row shots");
+            phase = PHASE_ROW_SHOTS;
+            step = 0;
+            armed = false;
+        }
+    }
+
+    /** Places the five machines touching each other, and records what each position held beforehand. */
+    private static void placeRow(Minecraft mc, ServerLevel level) {
+        List<BlockRegistryObject<?, ?>> machines = MekExDeorumBlocks.machines();
+        for (int tier = 0; tier < MACHINE_X.length; tier++) {
+            BlockPos pos = rowPos(tier);
+            BlockState before = level.getBlockState(pos);
+            boolean placed = level.setBlock(pos, machines.get(tier).defaultState(), 3);
+            log(mc, "row setblock " + pos.toShortString() + " " + TIER_NAMES[tier] + " (position held "
+                    + before.getBlock().getName().getString() + ") -> setBlock=" + placed);
+        }
+    }
+
+    /**
+     * Reads every row position back out of the level before anything is photographed: the block state
+     * must be the expected machine, the block entity must exist, and the position above it must be lit
+     * (sky and block light), otherwise the bars would be photographed in shadow.
+     */
+    private static void verifyRow(Minecraft mc, ServerLevel level) {
+        List<BlockRegistryObject<?, ?>> machines = MekExDeorumBlocks.machines();
+        StringBuilder builder = new StringBuilder("row verification:");
+        boolean allMachines = true;
+        boolean allLit = true;
+        for (int tier = 0; tier < MACHINE_X.length; tier++) {
+            BlockPos pos = rowPos(tier);
+            BlockPos above = pos.above();
+            BlockState state = level.getBlockState(pos);
+            boolean isMachine = state.is(machines.get(tier).defaultState().getBlock());
+            int skyLight = level.getBrightness(LightLayer.SKY, above);
+            int blockLight = level.getBrightness(LightLayer.BLOCK, above);
+            allMachines &= isMachine;
+            allLit &= (skyLight >= 14 || blockLight >= 14);
+            builder.append("\n  x=").append(pos.getX())
+                    .append(" expected=").append(TIER_NAMES[tier])
+                    .append(" actual=").append(state.getBlock().getName().getString())
+                    .append(" stateMatch=").append(isMachine)
+                    .append(" blockEntity=").append(level.getBlockEntity(pos) == null
+                            ? "null" : level.getBlockEntity(pos).getClass().getSimpleName())
+                    .append(" skyLightAbove=").append(skyLight)
+                    .append(" blockLightAbove=").append(blockLight);
+        }
+        builder.append("\n  all five positions hold their machine: ").append(allMachines)
+                .append("; all five are lit: ").append(allLit);
+        log(mc, builder.toString());
+        if (!allMachines || !allLit) {
+            LOG.warn("[F4 harness] ROW VERIFICATION FAILED (machines={}, lit={}); the row shots would not "
+                    + "show five adjacent machines", allMachines, allLit);
+        }
+    }
+
+    private static void clearRow(Minecraft mc, ServerLevel level) {
+        for (int tier = 0; tier < MACHINE_X.length; tier++) {
+            BlockPos pos = rowPos(tier);
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+            log(mc, "row cleared " + pos.toShortString() + ", now "
+                    + level.getBlockState(pos).getBlock().getName().getString());
+        }
+    }
+
+    // ------------------------------------------------------------------
+    // Phase 2: the tier row (front-on, closer, diagonal, one close-up per tier)
+    // ------------------------------------------------------------------
+
+    private static void rowShots(Minecraft mc) {
+        if (step >= ROW_SHOT_NAMES.length) {
+            log(mc, "tier-row shots done (" + shots + " screenshots so far); clearing the row again "
+                    + "so the grid phases see the world unchanged");
+            serverAction(mc, sp -> clearRow(mc, (ServerLevel) sp.level()));
+            phase = PHASE_GRID_SETUP;
+            step = 0;
+            armed = false;
+            return;
+        }
+        if (!armed) {
+            aimRowShot(mc, step);
+            armed = true;
+            nextTick = ticks + WAIT_ROW_SHOT;
+        } else if (ticks >= nextTick) {
+            grab(mc, ROW_SHOT_NAMES[step]);
+            armed = false;
+            step++;
+            nextTick = ticks + 2;
+        }
+    }
+
+    private static void aimRowShot(Minecraft mc, int index) {
+        double centreX = ROW_START_X + MACHINE_X.length / 2.0;
+        switch (index) {
+            case 0, 1 -> {
+                double distance = distanceForWidth(mc, MACHINE_X.length,
+                        index == 0 ? ROW_FRONT_FRACTION : ROW_CLOSE_FRACTION);
+                log(mc, (index == 0 ? "front-on" : "front-on close") + " framing: fov=" + fovDegrees(mc)
+                        + " aspect=" + fmt(aspect(mc)) + " distance=" + fmt(distance)
+                        + " (5 blocks fill " + fmt(MACHINE_X.length / (2.0 * distance * halfWidthTan(mc)))
+                        + " of the window width)");
+                placePlayerLookingAt(mc, centreX, MACHINE_Y + 1.35, ROW_Z - distance,
+                        centreX, MACHINE_Y + 0.9, ROW_Z);
+            }
+            case 2 -> {
+                double distance = distanceForWidth(mc, MACHINE_X.length, ROW_DIAGONAL_FRACTION);
+                double dx = 0.45 * distance;
+                double dz = 0.89 * distance;
+                log(mc, "diagonal framing: fov=" + fovDegrees(mc) + " aspect=" + fmt(aspect(mc))
+                        + " distance=" + fmt(Math.sqrt(dx * dx + dz * dz)));
+                placePlayerLookingAt(mc, centreX - dx, MACHINE_Y + 1.9, ROW_Z + 0.5 - dz,
+                        centreX, MACHINE_Y + 0.85, ROW_Z);
+            }
+            default -> {
+                int tier = index - 3;
+                double x = ROW_START_X + tier + 0.5;
+                log(mc, "close-up of " + TIER_NAMES[tier] + " front: distance=" + TIER_CLOSE_DISTANCE
+                        + " aimed at the bar line y=" + fmt(BAR_CENTRE_Y));
+                placePlayerLookingAt(mc, x, BAR_CENTRE_Y, ROW_Z - TIER_CLOSE_DISTANCE,
+                        x, BAR_CENTRE_Y, ROW_Z);
+            }
+        }
+    }
+
+    /**
+     * Distance at which a world-space width fills the given fraction of the window width. It is derived
+     * from the live FOV and window aspect rather than hard-coded, so the framing survives a different
+     * window size; the numbers are logged with every shot.
+     */
+    private static double distanceForWidth(Minecraft mc, double worldWidth, double widthFraction) {
+        return worldWidth / (2.0 * halfWidthTan(mc) * widthFraction);
+    }
+
+    private static double halfWidthTan(Minecraft mc) {
+        return Math.tan(Math.toRadians(fovDegrees(mc) / 2.0)) * aspect(mc);
+    }
+
+    private static double aspect(Minecraft mc) {
+        return (double) mc.getWindow().getWidth() / (double) mc.getWindow().getHeight();
+    }
+
+    /** {@code options.fov().get()} is the vertical FOV in degrees the projection is built from. */
+    private static double fovDegrees(Minecraft mc) {
+        Integer fov = mc.options.fov().get();
+        return fov == null || fov < 5 ? 70.0 : fov;
+    }
+
+    // ------------------------------------------------------------------
+    // Phase 3: place the machines on the fixed grid and settle
+    // ------------------------------------------------------------------
+
+    private static void gridSetup(Minecraft mc) {
+        if (step == 0) {
+            serverAction(mc, sp -> {
+                ServerLevel level = (ServerLevel) sp.level();
+                List<BlockRegistryObject<?, ?>> machines = MekExDeorumBlocks.machines();
+                for (int tier = 0; tier < MACHINE_X.length; tier++) {
                     BlockState state = machines.get(tier).defaultState();
                     BlockPos pos = new BlockPos(MACHINE_X[tier], MACHINE_Y, 0);
                     boolean placed = level.setBlock(pos, state, 3);
@@ -213,14 +421,14 @@ public final class DevScreenshotHarness {
         } else if (step == 1 && ticks >= nextTick) {
             log(mc, "setup settled at " + fmt(mc.player.getX()) + " " + fmt(mc.player.getY()) + " "
                     + fmt(mc.player.getZ()));
-            phase = 2;
+            phase = PHASE_MODEL_SHOTS;
             step = 0;
             armed = false;
         }
     }
 
     // ------------------------------------------------------------------
-    // Phase 2: eight angles per tier
+    // Phase 4: eight angles per tier
     // ------------------------------------------------------------------
 
     private static void modelShots(Minecraft mc) {
@@ -228,7 +436,7 @@ public final class DevScreenshotHarness {
         int angle = step % ANGLES.length;
         if (tier >= MACHINE_X.length) {
             log(mc, "model shots done (" + shots + " screenshots so far)");
-            phase = 3;
+            phase = PHASE_GUI_SHOTS;
             step = 0;
             armed = false;
             return;
@@ -252,7 +460,7 @@ public final class DevScreenshotHarness {
     }
 
     // ------------------------------------------------------------------
-    // Phase 3: one GUI per tier
+    // Phase 5: one GUI per tier
     // ------------------------------------------------------------------
 
     private static void guiShots(Minecraft mc) {
@@ -260,7 +468,7 @@ public final class DevScreenshotHarness {
         int sub = step % 3;
         if (tier >= MACHINE_X.length) {
             log(mc, "GUI shots done (" + shots + " screenshots); starting the functional probe");
-            phase = 4;
+            phase = PHASE_PROBE;
             step = 0;
             return;
         }
@@ -326,7 +534,7 @@ public final class DevScreenshotHarness {
     }
 
     // ------------------------------------------------------------------
-    // Phase 4: functional probe (test setup only, no behaviour change)
+    // Phase 6: functional probe (test setup only, no behaviour change)
     // ------------------------------------------------------------------
 
     /**
