@@ -1,7 +1,0 @@
-# Normalise line endings in the repository so the working tree stays clean on Windows.
-* text=auto eol=lf
-
-# Binary assets must never be converted.
-*.png binary
-*.jar binary
-*.ogg binary
