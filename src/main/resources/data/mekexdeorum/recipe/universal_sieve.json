@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "tag": "c:ingots/iron"
+    },
+    "R": {
+      "tag": "c:dusts/redstone"
+    },
+    "S": {
+      "item": "exdeorum:string_mesh"
+    },
+    "O": {
+      "tag": "c:ingots/osmium"
+    }
+  },
+  "pattern": [
+    "I I",
+    "RSR",
+    "IOI"
+  ],
+  "result": {
+    "count": 1,
+    "id": "mekexdeorum:universal_sieve"
+  }
+}

@@ -1,0 +1,35 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        maven {
+            name = 'NeoForged'
+            url = 'https://maven.neoforged.net/releases'
+        }
+    }
+}
+
+plugins {
+    id 'net.neoforged.moddev.repositories' version '2.0.74'
+}
+
+// The net.neoforged.moddev.repositories plugin contributes the repositories that
+// NeoForm/Minecraft artifacts are resolved from (NeoForged + Mojang + Central).
+// Those are registered through dependencyResolutionManagement, so any extra
+// repository must be added here as well: declaring a `repositories {}` block in
+// build.gradle would take precedence and hide the plugin's repositories.
+dependencyResolutionManagement {
+    repositories {
+        maven {
+            name = 'ModMaven'
+            url = 'https://modmaven.dev/'
+        }
+        // Ex Deorum is published to no public Maven repository other than Modrinth's.
+        // Its artifact id is the Modrinth slug, which is ex-deorum, not exdeorum.
+        maven {
+            name = 'Modrinth'
+            url = 'https://api.modrinth.com/maven'
+        }
+    }
+}
+
+rootProject.name = 'mekexdeorum'

@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "mekanism:alloys/reinforced"
+    },
+    "C": {
+      "tag": "c:circuits/elite"
+    },
+    "I": {
+      "tag": "c:ingots/gold"
+    },
+    "P": {
+      "item": "mekexdeorum:advanced_sieve_factory"
+    }
+  },
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "mekexdeorum:elite_sieve_factory"
+  }
+}

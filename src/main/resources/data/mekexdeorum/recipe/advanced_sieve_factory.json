@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "tag": "mekanism:alloys/infused"
+    },
+    "C": {
+      "tag": "c:circuits/advanced"
+    },
+    "I": {
+      "tag": "c:ingots/osmium"
+    },
+    "P": {
+      "item": "mekexdeorum:basic_sieve_factory"
+    }
+  },
+  "pattern": [
+    "ACA",
+    "IPI",
+    "ACA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "mekexdeorum:advanced_sieve_factory"
+  }
+}

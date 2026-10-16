@@ -1,0 +1,101 @@
+plugins {
+    id 'java-library'
+    // Version is supplied by the net.neoforged.moddev.repositories settings plugin,
+    // which already puts ModDevGradle on the build classpath.
+    id 'net.neoforged.moddev'
+}
+
+version = "${mod_version}+mc${minecraft_version}"
+group = mod_group_id
+
+// The jar name is part of the frozen contract: mekexDeorum-1.0.0+mc1.21.1.jar
+base {
+    archivesName = 'mekexDeorum'
+}
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+neoForge {
+    version = project.neo_version
+
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+        data {
+            clientData()
+        }
+    }
+
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+// NOTE: no `repositories {}` block here on purpose. Repositories (including the
+// ModMaven mirror for Mekanism and Modrinth's for Ex Deorum) are declared in
+// settings.gradle so that the ones contributed by the ModDevGradle repositories
+// settings plugin stay active. Declaring project repositories would override them
+// and break NeoForm setup.
+
+dependencies {
+    // Mekanism: the full jar is required because machine base classes
+    // (TileEntityMekanism, MekanismTileContainer, GuiMekanism) live outside the api jar.
+    compileOnly "mekanism:Mekanism:${mekanism_version}"
+    // Ex Deorum: mesh tiers and the sifting recipe API. Resolved from Modrinth's Maven
+    // repository; the artifact id is that project's slug (ex-deorum).
+    compileOnly "maven.modrinth:ex-deorum:${exdeorum_version}"
+
+    // The same mods must be present when running the game from Gradle, otherwise the
+    // addon cannot resolve its dependencies at runtime.
+    runtimeOnly "mekanism:Mekanism:${mekanism_version}"
+    runtimeOnly "maven.modrinth:ex-deorum:${exdeorum_version}"
+
+    // The pure logic classes (SieveMath, MeshTiers, EjectThrottle, SieveLayout,
+    // EjectDirection) are tested without touching Minecraft at all.
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+}
+
+// Interpolate mod metadata into neoforge.mods.toml
+tasks.named('processResources', ProcessResources).configure {
+    def expandProps = [
+            minecraft_version      : minecraft_version,
+            minecraft_version_range: minecraft_version_range,
+            neo_version            : neo_version,
+            neo_version_range      : neo_version_range,
+            loader_version_range   : loader_version_range,
+            mod_id                 : mod_id,
+            mod_name               : mod_name,
+            mod_license            : mod_license,
+            mod_version            : mod_version,
+            mod_authors            : mod_authors,
+            mod_description        : mod_description,
+            mod_credits            : mod_credits,
+            mekanism_version_range : mekanism_version_range,
+            exdeorum_version_range : exdeorum_version_range
+    ]
+    inputs.properties(expandProps)
+    filesMatching(['META-INF/neoforge.mods.toml']) {
+        expand expandProps
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+tasks.named('test', Test).configure {
+    useJUnitPlatform()
+    testLogging {
+        events 'passed', 'skipped', 'failed'
+    }
+}

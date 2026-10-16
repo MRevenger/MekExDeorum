@@ -1,0 +1,27 @@
+# --- Gradle ---------------------------------------------------------------
+.gradle/
+.gradle-home/
+build/
+out/
+
+# --- Local dev run directory ---------------------------------------------
+# Worlds, logs, screenshots and the generated config file.
+run/
+
+# --- IDE / OS -------------------------------------------------------------
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+Thumbs.db
+.DS_Store
+
+# --- Build output ---------------------------------------------------------
+*.jar
+# This project ships no wrapper (build.ps1 uses the Gradle in the shared cache).
+# If a wrapper is ever added, its jar must stay tracked despite the rule above.
+!gradle/wrapper/gradle-wrapper.jar
