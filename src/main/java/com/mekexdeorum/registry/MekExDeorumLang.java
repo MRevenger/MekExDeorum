@@ -16,6 +16,7 @@ public enum MekExDeorumLang implements ILangEntry {
     DESCRIPTION_ADVANCED_SIEVE_FACTORY("description", "advanced_sieve_factory"),
     DESCRIPTION_ELITE_SIEVE_FACTORY("description", "elite_sieve_factory"),
     DESCRIPTION_ULTIMATE_SIEVE_FACTORY("description", "ultimate_sieve_factory"),
+    AUTO_SPLIT("gui", "auto_split"),
     SIEVE("container", "sieve"),
     MEKEXDEORUM("itemGroup", "mekexdeorum");
 

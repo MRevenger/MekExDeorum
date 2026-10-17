@@ -53,8 +53,8 @@ python tools/validate_resources.py
 [PASS] 2 textures              30/30 block textures are 16x16 RGBA, 2/2 icons are 256x256 RGBA
 [PASS] 3 texture refs resolve  30 distinct repo textures referenced and present; skipped 0 out-of-namespace texture targets and 1 vanilla/external models (minecraft:block/block)
 [PASS] 4 lang keys             37 keys identical in en_us/zh_cn, 14 config keys covered, 5 block names matched
-[PASS] 5 mods.toml             jar:build/libs/mekexDeorum-1.0.0+mc1.21.1.jar!: modId mekexdeorum, mekanism '[10.7.11,)', exdeorum '[3.12,)'
-[PASS] 6 built jar             build/libs/mekexDeorum-1.0.0+mc1.21.1.jar (89590 bytes) contains all 68 required entries, 126 entries total
+[PASS] 5 mods.toml             jar:build/libs/mekexDeorum-1.0.1+mc1.21.1.jar!: modId mekexdeorum, mekanism '[10.7.11,)', exdeorum '[3.12,)'
+[PASS] 6 built jar             build/libs/mekexDeorum-1.0.1+mc1.21.1.jar (89590 bytes) contains all 68 required entries, 126 entries total
 [PASS] 7 enchantment tags      both item/enchantable tags list all 6 exdeorum meshes with replace=false
 
 7/7 checks passed
@@ -75,7 +75,7 @@ EXIT=0
    `block.mekexdeorum.*` 键与 `MekExDeorumBlocks.java` 里注册的 block 名双向比对。
 5. `mods.toml` 优先读 jar 内生成版（其次是源码模板，模板里的 `${...}` 会用 `gradle.properties` 展开），
    校验 `[[mods]].modId == mekexdeorum` 且 `mekanism`/`exdeorum` 的 `versionRange` **逐字**为 `[10.7.11,)` / `[3.12,)`。
-6. 校验 jar 存在于**逐字**路径 `build/libs/mekexDeorum-1.0.0+mc1.21.1.jar`，且含 68 项必需条目
+6. 校验 jar 存在于**逐字**路径 `build/libs/mekexDeorum-1.0.1+mc1.21.1.jar`，且含 68 项必需条目
    （30 纹理、icon.png、pack.mcmeta、mods.toml、5 blockstate、10 方块模型 + 5 物品模型、2 lang、5 掉落表、5 配方、3 标签文件）；
    顺带报出 `build/libs` 里多余的 jar。
 7. 两个 `item/enchantable` 标签必须 `"replace": false` 且列全 6 个 `exdeorum:*_mesh`。
@@ -122,7 +122,7 @@ negative-test harness: OK - every mutation was caught
 | 11 | `icon.png` 已生成并放入根目录 | 校验器检查 2 | 仓库根 `icon.png` 与 `src/main/resources/icon.png` 都是 256×256 RGBA；jar 内 `icon.png` 存在且 `mods.toml` 的 `logoFile="icon.png"` | ✅ |
 | 12 | 旧版代码已推送至 `legacy-1.0.7` 分支 | `git -c http.proxy=... ls-remote --heads origin` | `95dc181a0081036e28f29c0d109c8a575afdde21  refs/heads/legacy-1.0.7`（远端分支存在且指向 95dc181） | ✅ |
 | 13 | `main` 分支已清空并推送新代码 | `git log --oneline -1`、`git rev-parse HEAD`、`git ls-tree -r HEAD --name-only \| Measure-Object`、`git ls-remote`、`git status --porcelain -uall` | `main` = `5afd895 "Clear main branch for remake"`，本地=远端一致；**HEAD 里 0 个文件**（清空已做且已推送）；但全部新文件（T5 动手前 106 个，现 108 个）都处于 **untracked** 状态，没有任何提交包含它们 → "推送新代码"**尚未发生** | ❌ 前半（清空并推送）已完成，后半（推送新代码）未完成；属 T6 调度者步骤，见第 6 节 |
-| 14 | 构建通过，产物位于 `MekExDeorum/build/libs/` | `pwsh -File build.ps1 @('clean','build','--no-build-cache','--rerun-tasks')` | `BUILD SUCCESSFUL in 9s`（`7 actionable tasks: 7 executed`），exit 0；产物 `build/libs/mekexDeorum-1.0.0+mc1.21.1.jar`（逐字一致，89590 bytes，126 entries） | ✅ |
+| 14 | 构建通过，产物位于 `MekExDeorum/build/libs/` | `pwsh -File build.ps1 @('clean','build','--no-build-cache','--rerun-tasks')` | `BUILD SUCCESSFUL in 9s`（`7 actionable tasks: 7 executed`），exit 0；产物 `build/libs/mekexDeorum-1.0.1+mc1.21.1.jar`（逐字一致，89590 bytes，126 entries） | ✅ |
 
 统计：**✅ 9 条 / ⚠️ 4 条 / ❌ 1 条**。
 
@@ -147,7 +147,7 @@ TEST-com.mekexdeorum.SieveLayoutTest.xml tests=8 failures=0 errors=0 skipped=0
 TEST-com.mekexdeorum.SieveMathTest.xml tests=12 failures=0 errors=0 skipped=0
 ---TOTALS--- tests=54 failures=0 errors=0 skipped=0
 ```
-与预期 **54（12/14/9/8/6/5）逐项一致**。注意 `EjectDirectionTest`（6 个）不在任务书列出的名单里，但 54 的总数吻合。
+与预期 **54（12/14/9/8/6/5）逐项一致** —— 这是本轮当时的原始记录，予以保留。后续变化：第 3 轮把 `SieveLayoutTest` 扩到 18；第 5 轮弹出逻辑改用 Mekanism 侧配置后，`EjectDirectionTest` 的 6 个用例随旧规则一并删除，故当前套件为 **58**（12/14/9/18/5）。
 
 ### 4.2 反模式扫描（源码 grep + jar 内字节码）
 | 检查 | 源码 | 字节码（`javap -c -p` / 常量池裸扫 25 个 class） |

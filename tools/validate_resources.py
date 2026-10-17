@@ -30,8 +30,8 @@ ROOT = Path(__file__).resolve().parents[1]
 RESOURCES = ROOT / "src" / "main" / "resources"
 ASSETS = RESOURCES / "assets" / "mekexdeorum"
 JAVA = ROOT / "src" / "main" / "java" / "com" / "mekexdeorum"
-JAR_REL = "build/libs/mekexDeorum-1.0.0+mc1.21.1.jar"
-JAR = ROOT / "build" / "libs" / "mekexDeorum-1.0.0+mc1.21.1.jar"
+JAR_REL = "build/libs/mekexDeorum-1.0.1+mc1.21.1.jar"
+JAR = ROOT / "build" / "libs" / "mekexDeorum-1.0.1+mc1.21.1.jar"
 
 MOD_ID = "mekexdeorum"
 BLOCK_IDS = [
@@ -57,7 +57,7 @@ TAG_FILES = [
 ]
 MODS_TOML = "META-INF/neoforge.mods.toml"
 
-EXPECTED_TRANSLATION_KEYS = 14
+EXPECTED_TRANSLATION_KEYS = 13
 
 
 # ----------------------------------------------------------------------------

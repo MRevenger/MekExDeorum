@@ -4,7 +4,7 @@
 
 > 后续修复轮（P1 箭头遮挡输出栏、P2 输出栏自适应、P3 Mekanism 风格模型与等级横条、P4 四角覆盖）见 `FIX_REPORT.md`；该轮的**真机截图**（5 套 GUI + 5 级方块八角度）在 `docs/fix-verification/`。第四轮（工厂正面顶端短条改用 Mekanism 官方 `BaseTier` 颜色）同样记录在 `FIX_REPORT.md` 末尾。
 
-- 重制版本：`1.0.0`（`mekexDeorum-1.0.0+mc1.21.1.jar`）
+- 当前版本：`1.0.1`（`mekexDeorum-1.0.1+mc1.21.1.jar`）；第五轮弹出修复见 `EJECT_FIX_REPORT.md`
 - 平台：Minecraft 1.21.1 / NeoForge 21.1.250 / Java 21
 - 依赖：Mekanism `[10.7.11,)`（必需）、Ex Deorum `[3.12,)`（必需）
 - 许可：MIT
@@ -69,7 +69,7 @@ MekExDeorum/           <- git 根 = Gradle 根
 └── src/main/java/com/mekexdeorum/ , src/main/resources/ , src/test/java/
 ```
 
-`build/libs/mekexDeorum-1.0.0+mc1.21.1.jar` 由构建生成，按惯例被 `.gitignore` 排除，不入库；源码入库后可在本机复现得到该产物。
+`build/libs/mekexDeorum-1.0.1+mc1.21.1.jar` 由构建生成，按惯例被 `.gitignore` 排除，不入库；源码入库后可在本机复现得到该产物。
 
 ---
 
@@ -97,7 +97,7 @@ MekExDeorum/           <- git 根 = Gradle 根
 | # | 规格原文 | 现实 | 实际做法 |
 |---|---|---|---|
 | 1 | §5.1「需要自定义 `IExtendedItemHandler`」 | `IExtendedItemHandler` / `ExtendedItemHandlerUtils` 在 Mekanism 10.7.x 已不存在（1.20.1 时代的类型） | 用 `BasicInventorySlot` 子类 + `obeyStackLimit = false` + 上限 `Integer.MAX_VALUE`，经 Mekanism 的 `SerializerHelper` 超大存档与 varint 同步持久化——效果等价，且是 10.7 上唯一可行路径 |
-| 2 | §2.1 modid `MekExDeorum`、注册名 `mekExDeorum:universal_sieve` | NeoForge/原版强制 modid 与资源命名空间全小写 | modid/命名空间用 `mekexdeorum`；显示名 `MekExDeorum`、jar 名 `mekexDeorum-1.0.0+mc1.21.1.jar` 按规格保留大小写 |
+| 2 | §2.1 modid `MekExDeorum`、注册名 `mekExDeorum:universal_sieve` | NeoForge/原版强制 modid 与资源命名空间全小写 | modid/命名空间用 `mekexdeorum`；显示名 `MekExDeorum`、jar 名 `mekexDeorum-1.0.1+mc1.21.1.jar` 按规格保留大小写 |
 | 3 | §6.2「网格间距约 3–4 像素，形成 8×8 到 16×16 的网格单元」 | 16×16 纹理上两句互斥（4px 间距 = 4×4 单元；8×8 单元 = 2px 间距） | 默认按**可见数值** 4px 实现；`--grid-spacing 2` 可切到 8×8 读法。两种效果都出预览图对比（`_plan/previews/top_inner_grid2.png`） |
 | 4 | §三「开启 `meshDamage` 后每次批量筛矿消耗 1 点耐久」 | Ex Deorum 的 6 种筛网**全部不可损坏**（`MeshItem` 无 durability，`props()` 是裸 `Item.Properties()`，全仓库 grep `hurtAndBreak\|durab\|MAX_DAMAGE` 零命中） | 只对 `isDamageableItem()` 为真的筛网扣耐久；对原生筛网无可扣耐久 → 实际不消耗（用户已确认）。绝不对不可损坏物品调用 `hurtAndBreak`（会直接销毁筛网） |
 | 5 | §6.2「白色半透明网格，alpha 约 0.15–0.25」 | 实心渲染的方块面会丢弃真实 alpha | 白色网格以 alpha 0.20 合成进不透明 RGB（实测合成不透明度 0.200），观感即「白色半透明网格」；脚本仍暴露 `--grid-alpha` 并限定 0.15–0.25 |
@@ -121,9 +121,10 @@ MekExDeorum/           <- git 根 = Gradle 根
 ```
 pwsh -File build.ps1 @('clean','build','--no-build-cache','--rerun-tasks')
   -> BUILD SUCCESSFUL in 9s, 7 actionable tasks: 7 executed, exit code 0
-build/libs/mekexDeorum-1.0.0+mc1.21.1.jar    89590 bytes   （文件名逐字匹配）
+build/libs/mekexDeorum-1.0.1+mc1.21.1.jar    89590 bytes   （文件名逐字匹配）
 build/test-results/test/*.xml  ->  tests=54  failures+errors=0
-  SieveMath 12 / SieveBatch 14 / EjectThrottle 9 / SieveLayout 8 / EjectDirection 6 / MeshTiers 5
+  SieveMath 12 / SieveBatch 14 / EjectThrottle 9 / SieveLayout 8 / MeshTiers 5
+  （该记录另含一个已于第 5 轮整体删除的测试类，共 6 个用例，故当时为 54）
 
 python tools/validate_resources.py  ->  7/7 checks passed, exit 0
 ```
@@ -183,8 +184,8 @@ python tools/validate_resources.py  ->  7/7 checks passed, exit 0
 
 ```powershell
 cd MekExDeorum
-pwsh -File build.ps1 build                                  # -> build/libs/mekexDeorum-1.0.0+mc1.21.1.jar
-pwsh -File build.ps1 test                                   # 54 个单元测试
+pwsh -File build.ps1 build                                  # -> build/libs/mekexDeorum-1.0.1+mc1.21.1.jar
+pwsh -File build.ps1 test                                   # 58 个单元测试
 python tools/validate_resources.py                          # 资源/JSON/jar 校验
 pwsh -File build.ps1 @('test','--rerun-tasks')              # 多参数/带 flag 时必须用这种数组形式
 ```

@@ -3,11 +3,19 @@ package com.mekexdeorum.client.gui;
 import com.mekexdeorum.MekExDeorumConfig;
 import com.mekexdeorum.SieveLayout;
 import com.mekexdeorum.inventory.container.SieveContainer;
+import com.mekexdeorum.registry.MekExDeorumLang;
 import com.mekexdeorum.tile.TileEntitySieve;
 import mekanism.api.energy.IEnergyContainer;
 import mekanism.client.gui.GuiConfigurableTile;
 import mekanism.client.gui.element.bar.GuiVerticalPowerBar;
+import mekanism.client.gui.element.button.ToggleButton;
+import mekanism.common.util.MekanismUtils;
+import mekanism.common.util.MekanismUtils.ResourceType;
+import mekanism.common.util.text.BooleanStateDisplay.OnOff;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.MultiPlayerGameMode;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
@@ -21,8 +29,18 @@ import net.minecraft.world.entity.player.Inventory;
  *
  * <p>The background is Mekanism's own nine-sliced window texture, which stretches to any size, so no
  * custom GUI texture is needed.
+ *
+ * <p>The controls are Mekanism's own too: the side configuration tab of {@link GuiConfigurableTile},
+ * which holds the player-facing auto-eject switch, and the auto-split toggle, a {@link ToggleButton}
+ * that draws Mekanism's on/off switch texture and reads its state from the machine.
  */
 public class GuiSieve extends GuiConfigurableTile<TileEntitySieve, SieveContainer> {
+
+    /** Mekanism's on/off switch, off and on. Both sprites are 18x18. */
+    private static final ResourceLocation TOGGLE = MekanismUtils.getResource(ResourceType.GUI_BUTTON, "toggle.png");
+    private static final ResourceLocation TOGGLE_FLIPPED =
+            MekanismUtils.getResource(ResourceType.GUI_BUTTON, "toggle_flipped.png");
+    private static final int TOGGLE_TEXTURE = 18;
 
     /** Number of input slots of this machine, and therefore the number of progress arrows. */
     private final int inputSlots;
@@ -58,5 +76,33 @@ public class GuiSieve extends GuiConfigurableTile<TileEntitySieve, SieveContaine
         }
         // Vertical energy bar down the right hand edge, the way Mekanism's own machines show it.
         addRenderableWidget(new GuiVerticalPowerBar(this, energy, SieveLayout.powerBarX(inputSlots, outputSlots), SieveLayout.POWER_BAR_Y));
+        // Auto-split toggle in the free strip left of the input row. Mekanism's switch texture shows
+        // the state, the tooltip spells it out ("Auto-split inputs: On/Off"), and the state itself is
+        // the machine's, synced from the server, so the widget never guesses.
+        addRenderableWidget(new ToggleButton(this,
+                SieveLayout.SPLIT_BUTTON_X, SieveLayout.SPLIT_BUTTON_Y,
+                SieveLayout.SPLIT_BUTTON_SIZE, SieveLayout.SPLIT_BUTTON_SIZE,
+                TOGGLE_TEXTURE, TOGGLE_TEXTURE, TOGGLE, TOGGLE_FLIPPED,
+                tile::isAutoSplit, (element, mouseX, mouseY) -> requestAutoSplitToggle(),
+                MekExDeorumLang.AUTO_SPLIT.translate(OnOff.of(true)),
+                MekExDeorumLang.AUTO_SPLIT.translate(OnOff.of(false))));
+    }
+
+    /**
+     * Asks the server to flip the auto-split mode.
+     *
+     * <p>The mode is server-authoritative: this only sends vanilla's container button packet, which
+     * the server delivers to {@link SieveContainer#clickMenuButton}. That route works unchanged in
+     * single player and on a dedicated server, and needs no packet of our own.
+     *
+     * @return whether the click was sent
+     */
+    private boolean requestAutoSplitToggle() {
+        MultiPlayerGameMode gameMode = Minecraft.getInstance().gameMode;
+        if (gameMode == null) {
+            return false;
+        }
+        gameMode.handleInventoryButtonClick(menu.containerId, SieveContainer.BUTTON_SPLIT_INPUTS);
+        return true;
     }
 }

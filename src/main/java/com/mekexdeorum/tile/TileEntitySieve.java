@@ -1,7 +1,7 @@
 package com.mekexdeorum.tile;
 
-import com.mekexdeorum.EjectDirection;
 import com.mekexdeorum.EjectThrottle;
+import com.mekexdeorum.InputSplit;
 import com.mekexdeorum.MekExDeorumConfig;
 import com.mekexdeorum.MeshTiers;
 import com.mekexdeorum.SieveBatch;
@@ -12,15 +12,18 @@ import com.mekexdeorum.inventory.slot.OversizedOutputSlot;
 import com.mekexdeorum.upgrade.SieveUpgradeData;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.DoubleSupplier;
 import mekanism.api.Action;
 import mekanism.api.AutomationType;
 import mekanism.api.IContentsListener;
+import mekanism.api.RelativeSide;
 import mekanism.api.Upgrade;
 import mekanism.api.inventory.IInventorySlot;
 import mekanism.api.tier.BaseTier;
@@ -31,6 +34,7 @@ import mekanism.common.capabilities.holder.energy.IEnergyContainerHolder;
 import mekanism.common.capabilities.holder.slot.IInventorySlotHolder;
 import mekanism.common.capabilities.holder.slot.InventorySlotHelper;
 import mekanism.common.inventory.container.MekanismContainer;
+import mekanism.common.inventory.container.sync.SyncableBoolean;
 import mekanism.common.inventory.slot.BasicInventorySlot;
 import mekanism.common.inventory.slot.EnergyInventorySlot;
 import mekanism.common.inventory.slot.InputInventorySlot;
@@ -90,6 +94,7 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
     private static final String NBT_REQUIRED_TICKS = "requiredTicks";
     private static final String NBT_BATCH_SIZE = "batchSize";
     private static final String NBT_PAUSED = "paused";
+    private static final String NBT_AUTO_SPLIT = "autoSplit";
     private static final String NBT_OVERFLOW = "overflow";
     private static final String NBT_OVERFLOW_ITEM = "item";
     private static final String NBT_OVERFLOW_AMOUNT = "amount";
@@ -126,6 +131,19 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
     private final Map<Item, Long> overflow = new LinkedHashMap<>();
 
     private final EjectThrottle ejectThrottle = new EjectThrottle();
+
+    /** The player-facing auto-split mode: keep the input slots evenly split while it is on. */
+    private boolean autoSplit;
+
+    /**
+     * Set whenever an input slot's contents changed, which is when a rebalance may be due. Mekanism
+     * drives its own factory sorting the same way ({@code TileEntityFactory}: {@code sortingNeeded},
+     * set by the slots' contents listener and cleared by the balancing pass).
+     */
+    private boolean autoSplitNeeded = true;
+
+    /** True while {@link #splitInputs()} writes, so our own writes cannot schedule another pass. */
+    private boolean splitting;
 
     public TileEntitySieve(Holder<Block> blockProvider, BlockPos pos, BlockState state) {
         super(blockProvider, pos, state);
@@ -203,11 +221,21 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         builder.addSlot(meshSlot = BasicInventorySlot.at(ExDeorumCompat::isMesh, listener,
                 SieveLayout.MESH_X, SieveLayout.MESH_Y, 1));
 
+        // The input slots get a listener that also marks a rebalance as due, so every arrival and
+        // every consumed batch re-splits the row: that is what keeps all lanes working in auto-split
+        // mode. The mesh and output slots keep the plain listener, they take no part in the split.
+        IContentsListener inputListener = () -> {
+            listener.onContentsChanged();
+            if (!splitting) {
+                autoSplitNeeded = true;
+            }
+        };
+
         for (int i = 0; i < inputs; i++) {
             // Structural validation only: recipes live in the server's recipe manager and this
             // predicate is also asked on the client while a player drags an item over the slot, so
             // it must never consult them. Whether the mesh can sift an item is decided in the tick.
-            InputInventorySlot slot = InputInventorySlot.at(stack -> !stack.isEmpty(), listener,
+            InputInventorySlot slot = InputInventorySlot.at(stack -> !stack.isEmpty(), inputListener,
                     SieveLayout.inputSlotX(i), SieveLayout.inputSlotY(i));
             inputSlots.add(slot);
             builder.addSlot(slot);
@@ -249,6 +277,14 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         tickEjection();
         // Then the parked results get first refusal on whatever space has been freed.
         drainOverflow();
+        // Auto-split runs once per change of the input slots, never once per tick. The flag is
+        // cleared before the pass, exactly as Mekanism's factory does with its sorting flag: the
+        // pass itself changes the inventory, so if it were cleared afterwards the machine would
+        // rebalance for ever.
+        if (autoSplit && autoSplitNeeded) {
+            autoSplitNeeded = false;
+            splitInputs();
+        }
 
         if (!(getLevel() instanceof ServerLevel server)) {
             return sendUpdate;
@@ -467,12 +503,28 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
     /**
      * Pushes everything the machine holds into the neighbouring inventories, once per game tick.
      *
-     * <p>All output slots and the overflow buffer are visited in one pass, and the sides come from the
-     * config. The throttle is what reduces an unattended machine to one attempt every twenty ticks
-     * once nothing has accepted anything for 200 ticks.
+     * <p>All output slots and the overflow buffer are visited in one pass, and the sides are the ones
+     * the item side config marks as OUTPUT. The throttle is what reduces an unattended machine to one
+     * attempt every twenty ticks once nothing has accepted anything for 200 ticks.
+     *
+     * <p>Nothing is pushed at all unless the player has switched auto-eject on: the switch is the ITEM
+     * {@link ConfigInfo#isEjecting()}, exactly the flag Mekanism's own ejector consults, flipped by
+     * {@code PacketEjectConfiguration} from the "Auto-eject" button of the side configuration window
+     * and persisted with the tile. The early return deliberately happens before the throttle is
+     * touched, so a machine whose ejection is off keeps whatever idle/cooldown state it had.
+     *
+     * <p>This is <strong>not</strong> {@link TileComponentEjector#isEjecting(ConfigInfo, TransmissionType)}:
+     * that also ANDs the component's own {@code canEject} predicate, which this tile sets to
+     * {@code false} for items so that Mekanism's component does not eject a second time. Reading it
+     * here would therefore disable item ejection for good.
      */
     private void tickEjection() {
         if (getLevel() == null || getLevel().isClientSide()) {
+            return;
+        }
+        ConfigInfo itemConfig = configComponent.getConfig(TransmissionType.ITEM);
+        if (itemConfig == null || !itemConfig.isEjecting()) {
+            // Auto-eject is off: no push, and the throttle's state stays exactly as it was.
             return;
         }
         ejectThrottle.setDynamic(MekExDeorumConfig.dynamicEject());
@@ -483,7 +535,7 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
     }
 
     private boolean ejectAll() {
-        List<Direction> sides = ejectSides();
+        Set<Direction> sides = ejectSides();
         if (sides.isEmpty()) {
             return false;
         }
@@ -503,19 +555,27 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         return moved > 0L;
     }
 
-    /** The sides to eject to, per the configured policy. */
-    private List<Direction> ejectSides() {
-        Direction facing = getDirection();
-        EjectDirection policy = MekExDeorumConfig.ejectDirection();
-        if (policy == EjectDirection.BACK) {
-            return List.of(facing.getOpposite());
+    /**
+     * The sides the machine may push to: exactly those the ITEM side config marks as
+     * {@link DataType#OUTPUT}.
+     *
+     * <p>This replicates Mekanism's own rule ({@code TileComponentEjector#getSidesForData}, private in
+     * 10.7.11.76): the data type of a side has to be {@code OUTPUT} exactly, and the side is a
+     * {@link RelativeSide} mapped onto a world direction through the block's facing. A side set to
+     * {@code INPUT}, {@code INPUT_OUTPUT}, {@code EXTRA}, {@code ENERGY} or {@code NONE} therefore never
+     * receives items, and no direction is hardcoded here.
+     */
+    private Set<Direction> ejectSides() {
+        ConfigInfo info = configComponent.getConfig(TransmissionType.ITEM);
+        if (info == null) {
+            return Set.of();
         }
-        List<Direction> sides = new ArrayList<>(Direction.values().length);
-        for (Direction side : Direction.values()) {
-            if (policy == EjectDirection.ALL_SIDES_EXCEPT_FRONT && side == facing) {
-                continue;
+        Direction facing = getDirection();
+        Set<Direction> sides = EnumSet.noneOf(Direction.class);
+        for (Map.Entry<RelativeSide, DataType> entry : info.getSideConfig()) {
+            if (entry.getValue() == DataType.OUTPUT) {
+                sides.add(entry.getKey().getDirection(facing));
             }
-            sides.add(side);
         }
         return sides;
     }
@@ -572,6 +632,139 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
             moved += pushed;
         }
         return moved;
+    }
+
+    // ------------------------------------------------------------------
+    // Input split
+    // ------------------------------------------------------------------
+
+    /**
+     * Spreads the input slots evenly, so that every lane of a factory works in parallel instead of
+     * one lane holding the whole pile.
+     *
+     * <p>The arithmetic lives in {@link InputSplit} and mirrors Mekanism's own
+     * {@code TileEntityFactory#distributeItems}: each item group's total is divided by the number of
+     * slots that can hold it and the remainder is spread one item per slot from the lowest index.
+     * The slots are written with {@code setStackUnchecked}, Mekanism's own choice for rebalancing:
+     * the split never invents, converts or drops an item, and it only ever empties a slot that it
+     * filled itself.
+     *
+     * <p>This is the balancing step of the auto-split mode: {@link #onUpdateServer} calls it whenever
+     * the input slots changed while the mode is on ({@code TileEntityFactory} calls its
+     * {@code sortInventory()} from exactly the same place in its tick). It is deliberately also
+     * callable on its own, and it is idempotent, so running it on an already balanced row writes
+     * nothing at all - which is what keeps the auto-split pass from rescheduling itself.
+     *
+     * <p>Server side only.
+     *
+     * @return whether any slot changed
+     */
+    public boolean splitInputs() {
+        if (inputSlots == null || inputSlots.size() < 2) {
+            // One lane has nothing to share with anybody.
+            return false;
+        }
+        int size = inputSlots.size();
+        int[] groupOf = new int[size];
+        int[] counts = new int[size];
+        int[] limits = new int[size];
+        List<ItemStack> items = new ArrayList<>();
+        for (int slot = 0; slot < size; slot++) {
+            IInventorySlot inventorySlot = inputSlots.get(slot);
+            ItemStack stack = inventorySlot.getStack();
+            // The limit is asked with the slot's own contents: for an empty slot Mekanism answers
+            // with the slot's raw limit, which the split then caps by the item's stack size.
+            limits[slot] = inventorySlot.getLimit(stack);
+            if (stack.isEmpty()) {
+                groupOf[slot] = -1;
+                continue;
+            }
+            int group = indexOfSameItem(items, stack);
+            if (group < 0) {
+                group = items.size();
+                items.add(stack);
+            }
+            groupOf[slot] = group;
+            counts[slot] = stack.getCount();
+        }
+        if (items.isEmpty()) {
+            return false;
+        }
+
+        InputSplit.Result result = InputSplit.distribute(groupOf, counts, limits,
+                group -> items.get(group).getMaxStackSize(),
+                (slot, group) -> inputSlots.get(slot).isItemValid(items.get(group).copyWithCount(1)));
+        if (!result.changed()) {
+            // Already balanced: not a single slot is touched, so no contents listener fires and the
+            // auto-split mode stays a once-per-change job instead of a once-per-tick one.
+            return false;
+        }
+
+        // Our own writes must not mark another rebalance as due; only a real change may.
+        splitting = true;
+        try {
+            for (int slot = 0; slot < size; slot++) {
+                applySplit(result, items, slot);
+            }
+        } finally {
+            splitting = false;
+        }
+        markForSave();
+        return true;
+    }
+
+    /** Writes one slot's share of the split, skipping the write when it already holds it. */
+    private void applySplit(InputSplit.Result result, List<ItemStack> items, int slot) {
+        int want = result.count()[slot];
+        int group = result.group()[slot];
+        ItemStack target = want <= 0 || group < 0
+                ? ItemStack.EMPTY
+                : items.get(group).copyWithCount(want);
+        IInventorySlot inventorySlot = inputSlots.get(slot);
+        if (ItemStack.matches(inventorySlot.getStack(), target)) {
+            return;
+        }
+        if (inventorySlot instanceof BasicInventorySlot basic) {
+            // Mekanism's own choice for rebalancing: the stack was built here, so it cannot be
+            // invalid for the slot and re-validating it every pass would be wasted work.
+            basic.setStackUnchecked(target);
+        } else {
+            inventorySlot.setStack(target);
+        }
+    }
+
+    /** Whether the machine keeps its input slots evenly split. */
+    public boolean isAutoSplit() {
+        return autoSplit;
+    }
+
+    /**
+     * Switches the auto-split mode. Also the client-side setter, so the container's tracked flag can
+     * mirror the server value, which is what makes the GUI toggle show the real state.
+     */
+    public void setAutoSplit(boolean value) {
+        if (autoSplit == value) {
+            return;
+        }
+        autoSplit = value;
+        // Switching on has to take effect at once, without waiting for the next slot change.
+        autoSplitNeeded = true;
+    }
+
+    /** Server side: flips the mode and persists it. Called by the menu's button. */
+    public void toggleAutoSplit() {
+        setAutoSplit(!autoSplit);
+        markForSave();
+    }
+
+    /** Index of the first representative stack for the same item and the same components, or -1. */
+    private static int indexOfSameItem(List<ItemStack> items, ItemStack stack) {
+        for (int index = 0; index < items.size(); index++) {
+            if (ItemStack.isSameItemSameComponents(items.get(index), stack)) {
+                return index;
+            }
+        }
+        return -1;
     }
 
     // ------------------------------------------------------------------
@@ -693,6 +886,9 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         container.trackArray(progress);
         container.trackArray(requiredTicks);
         container.trackArray(batchSize);
+        // The mode itself, so the GUI toggle draws the server's state instead of guessing. Same
+        // wiring Mekanism uses for its factory sorting flag (`TileEntityFactory#addContainerTrackers`).
+        container.track(SyncableBoolean.create(this::isAutoSplit, this::setAutoSplit));
     }
 
     /**
@@ -723,8 +919,8 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
     /**
      * Additional NBT written by this machine, on top of Mekanism's own slot serialisation:
      * {@code progress}, {@code requiredTicks} and {@code batchSize} (one int per input slot),
-     * {@code paused} (one byte per input slot) and {@code overflow} (a list of compounds keyed
-     * {@code item} and {@code amount}).
+     * {@code paused} (one byte per input slot), {@code overflow} (a list of compounds keyed
+     * {@code item} and {@code amount}) and {@code autoSplit}.
      */
     @Override
     public void saveAdditional(@NotNull CompoundTag tag, @NotNull HolderLookup.Provider provider) {
@@ -735,6 +931,7 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         tag.putIntArray(NBT_BATCH_SIZE, resize(batchSize, inputs));
         tag.putByteArray(NBT_PAUSED, packPaused(inputs));
         tag.put(NBT_OVERFLOW, saveOverflow(provider));
+        tag.putBoolean(NBT_AUTO_SPLIT, autoSplit);
     }
 
     @Override
@@ -748,6 +945,10 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         batchSize = resize(tag.getIntArray(NBT_BATCH_SIZE), inputs);
         paused = unpackPaused(tag.getByteArray(NBT_PAUSED), inputs);
         loadOverflow(provider, tag.getList(NBT_OVERFLOW, Tag.TAG_COMPOUND));
+        // Mekanism keeps this flag in its "sustained" data; for this machine the block entity's own
+        // tag is the equivalent, and loading it marks a rebalance as due so a loaded machine is even
+        // again on its first tick.
+        setAutoSplit(tag.getBoolean(NBT_AUTO_SPLIT));
     }
 
     private ListTag saveOverflow(HolderLookup.Provider provider) {
@@ -826,7 +1027,7 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         return new SieveUpgradeData(meshSlot.getStack().copy(), copyOf(inputSlots), copyOf(outputSlots),
                 overflowItems(), overflowAmounts(), energySlot.getStack().copy(),
                 energyContainer.getEnergy(), resize(progress, inputSlots.size()),
-                resize(requiredTicks, inputSlots.size()), components);
+                resize(requiredTicks, inputSlots.size()), autoSplit, components);
     }
 
     @Override
@@ -842,6 +1043,9 @@ public class TileEntitySieve extends TileEntityConfigurableMachine implements IT
         restoreAll(outputSlots, sieve.outputs);
         restore(energySlot, sieve.energyItem);
         energyContainer.setEnergy(sieve.energy);
+        autoSplit = sieve.autoSplit;
+        // Rebalance once on the new machine if the mode was on when the old one was replaced.
+        autoSplitNeeded = true;
 
         overflow.clear();
         for (int i = 0; i < sieve.overflowItems.size(); i++) {

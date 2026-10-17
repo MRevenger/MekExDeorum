@@ -657,15 +657,16 @@ BUILD SUCCESSFUL in 8s
 
 | 测试类 | tests | failures | errors | skipped |
 |---|---|---|---|---|
-| `com.mekexdeorum.EjectDirectionTest` | 6 | 0 | 0 | 0 |
 | `com.mekexdeorum.EjectThrottleTest` | 9 | 0 | 0 | 0 |
 | `com.mekexdeorum.MeshTiersTest` | 5 | 0 | 0 | 0 |
 | `com.mekexdeorum.SieveBatchTest` | 14 | 0 | 0 | 0 |
 | `com.mekexdeorum.SieveLayoutTest` | 18 | 0 | 0 | 0 |
 | `com.mekexdeorum.SieveMathTest` | 12 | 0 | 0 | 0 |
-| **合计** | **64** | **0** | **0** | **0** |
+| **合计** | **58** | **0** | **0** | **0** |
 
-XML 时间戳 `2026-10-16T09:32:15Z`（= 本地 17:32:15），**本次构建新写入**；产物 `build/libs/mekexDeorum-1.0.0+mc1.21.1.jar`（**95,548 字节**，写入时间 17:32:14，构建结束后 6 秒内取用）→ **新鲜**。
+> 第 5 轮删除了原表中的一行测试类（6 个用例，随旧弹出规则一并移除），故合计由 64 变为 58；其余各类数字未改动。
+
+XML 时间戳 `2026-10-16T09:32:15Z`（= 本地 17:32:15），**本次构建新写入**；产物 `build/libs/mekexDeorum-1.0.1+mc1.21.1.jar`（**95,548 字节**，写入时间 17:32:14，构建结束后 6 秒内取用）→ **新鲜**。
 
 → **F2 声称的「64 tests, 0 failures」实测成立** ✅（`SieveLayoutTest` 的 18 个也与 F3 手工统计的 18 个 `@Test` / 91 断言 / 0 `@Disabled` 吻合）
 
@@ -676,8 +677,8 @@ XML 时间戳 `2026-10-16T09:32:15Z`（= 本地 17:32:15），**本次构建新�
 [PASS] 2 textures              35/35 block textures are 16x16 RGBA, 2/2 icons are 256x256 RGBA
 [PASS] 3 texture refs resolve  35 distinct repo textures referenced and present; skipped 0 out-of-namespace texture targets and 1 vanilla/external models (minecraft:block/block)
 [PASS] 4 lang keys             37 keys identical in en_us/zh_cn, 14 config keys covered, 5 block names matched
-[PASS] 5 mods.toml             jar:build/libs/mekexDeorum-1.0.0+mc1.21.1.jar!: modId mekexdeorum, mekanism '[10.7.11,)', exdeorum '[3.12,)'
-[PASS] 6 built jar             build/libs/mekexDeorum-1.0.0+mc1.21.1.jar (95548 bytes) contains all 73 required entries, 132 entries total
+[PASS] 5 mods.toml             jar:build/libs/mekexDeorum-1.0.1+mc1.21.1.jar!: modId mekexdeorum, mekanism '[10.7.11,)', exdeorum '[3.12,)'
+[PASS] 6 built jar             build/libs/mekexDeorum-1.0.1+mc1.21.1.jar (95548 bytes) contains all 73 required entries, 132 entries total
 [PASS] 7 enchantment tags      both item/enchantable tags list all 6 exdeorum meshes with replace=false
 
 7/7 checks passed

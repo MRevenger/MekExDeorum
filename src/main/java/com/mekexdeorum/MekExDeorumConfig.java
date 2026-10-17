@@ -28,15 +28,11 @@ public final class MekExDeorumConfig {
 
     // --- eject ---
     public static final ModConfigSpec.BooleanValue DYNAMIC_EJECT;
-    public static final ModConfigSpec.ConfigValue<String> EJECT_DIRECTION;
 
     // --- energy ---
     public static final ModConfigSpec.IntValue BASE_ENERGY_CAPACITY;
     public static final ModConfigSpec.DoubleValue ENERGY_CAPACITY_MULTIPLIER;
     public static final ModConfigSpec.LongValue ENERGY_PER_ITEM;
-
-    /** Serialised name of the default eject direction, as written into the config file. */
-    public static final String EJECT_DIRECTION_DEFAULT = "all_sides_except_front";
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -109,14 +105,6 @@ public final class MekExDeorumConfig {
                 .translation("mekexdeorum.configuration.eject.dynamicEject")
                 .define("dynamicEject", true);
 
-        EJECT_DIRECTION = builder
-                .comment("Which sides the machine pushes its results to.",
-                        "all_sides               - all six sides",
-                        "all_sides_except_front  - all sides except the block's front face",
-                        "back                    - the back face only")
-                .translation("mekexdeorum.configuration.eject.ejectDirection")
-                .define("ejectDirection", EJECT_DIRECTION_DEFAULT);
-
         builder.pop();
 
         builder.comment(
@@ -177,11 +165,6 @@ public final class MekExDeorumConfig {
     /** Whether an idle machine throttles its eject attempts. */
     public static boolean dynamicEject() {
         return DYNAMIC_EJECT.get();
-    }
-
-    /** Configured eject direction; an unknown name falls back to the default. */
-    public static EjectDirection ejectDirection() {
-        return EjectDirection.byName(EJECT_DIRECTION.get());
     }
 
     /** Energy buffer of the Universal Sieve, in FE. */

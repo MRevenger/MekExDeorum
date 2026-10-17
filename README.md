@@ -38,6 +38,9 @@
 - 批量筛矿用**二项分布合并**：对每个输出做 `Binomial(n, p)` 一次采样，而不是把完整的筛矿事件循环 N 遍。单次批量只有「输出数 × n」次随机数比较，没有配方查找、没有物品堆创建。
 - 产量用 `long` 累加，单个输出槽上限 21 亿（`Integer.MAX_VALUE`）；装不下时进入内部 `long` 溢出缓冲并暂停该栏，绝不丢物品。
 - **每游戏刻**尝试把全部输出槽与溢出缓冲推入相邻容器；连续 200 tick 推不出去才降频为每 20 tick 一次。
+- 只有玩家**打开主动弹出**之后才会推：开关是 Mekanism 侧面配置里的 `Eject` / 主动弹出按钮（默认**关闭**，与 Mekanism 自己的机器一致），没打开时机器一个产物都不往外送。打开方式：GUI 左侧的配置页签 → 物品页签 → 右上角带 `Auto-eject` 提示文字的图标按钮，按下后状态行变成 `Eject: On`。开关随方块存档。
+- 推到哪些面同样由 Mekanism 的**侧面配置**决定：只有配置为 `输出`（OUTPUT）的面会被推送，`输入`/`输入输出`/`额外`/`能量`/`无` 都不推。默认所有面都是 `无`，需要先在配置页签里把要推的面设为 `输出`。
+- 输入行左侧是一颗**自动平分开关**（Mekanism 的开关贴图，`toggle` / `toggle_flipped`，提示文字 `自动平分输入栏：开/关`，默认**关闭**）。打开后输入栏会被**持续**保持平均：某一栏进货、或机器消耗掉一批，都会在下一游戏刻重新均分，于是多栏工厂的每一栏都能同时跑起来；关掉后机器再也不会自己动输入栏的物品。算法照 Mekanism 工厂的均分逻辑（总数 ÷ 参与栏数，余数从低位栏一栏一个），物品既不凭空产生也不会丢失，已经平均时一次都不写槽。
 - 附着在**筛网**上的效率附魔降低处理时间，时运附魔提高掉落概率。
 
 ## 配置
@@ -55,8 +58,7 @@ fortuneChanceBonus = 0.05   # 时运每级增加的掉落概率
 fortuneAmountBonus = 0.0    # 时运每级增加的掉落数量比例（默认关闭）
 
 [eject]
-dynamicEject = true                    # 动态弹出节流
-ejectDirection = "all_sides_except_front"
+dynamicEject = true           # 动态弹出节流
 
 [energy]
 baseEnergyCapacity = 20000      # 通用筛矿机的能量容量
@@ -78,8 +80,8 @@ Ex Deorum 的六种筛网**本身没有耐久度**。因此打开 `meshDamage` �
 需要 JDK 21 与 Gradle 8.14.2（不附带 wrapper）。
 
 ```powershell
-pwsh -File build.ps1 build     # 产物：build/libs/mekexDeorum-1.0.0+mc1.21.1.jar
-pwsh -File build.ps1 test      # 64 个单元测试，不需要 Minecraft 类路径
+pwsh -File build.ps1 build     # 产物：build/libs/mekexDeorum-1.0.1+mc1.21.1.jar
+pwsh -File build.ps1 test      # 77 个单元测试，不需要 Minecraft 类路径
 pwsh -File build.ps1 @('clean')            # clean 必须单独一次调用
 pwsh -File build.ps1 @('build')
 ```

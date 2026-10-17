@@ -78,6 +78,23 @@ public final class SieveLayout {
     /** Right padding of the slot area: room for the vertical energy bar along the window's edge. */
     public static final int RIGHT_MARGIN = 16;
 
+    /**
+     * Edge length of the auto-split toggle: one slot, the pitch of the row it stands in.
+     *
+     * <p>The toggle sits in the free strip between the mesh and energy column and the input row: the
+     * mesh slot ends on its left edge, the first input slot starts on its right edge, the energy slot
+     * is below it, no progress arrow reaches that far left and the energy bar is on the opposite edge
+     * of the window. It therefore covers no slot, no arrow and no bar at any tier and at any
+     * configured output count.
+     */
+    public static final int SPLIT_BUTTON_SIZE = SLOT;
+
+    /** Left edge of the auto-split toggle: one slot to the left of the first input slot. */
+    public static final int SPLIT_BUTTON_X = LEFT_PADDING - SLOT;
+
+    /** Top of the auto-split toggle: level with the input row. */
+    public static final int SPLIT_BUTTON_Y = INPUT_Y;
+
     /** Height of one input row: the input slot itself. */
     public static final int INPUT_ROW_HEIGHT = SLOT;
 

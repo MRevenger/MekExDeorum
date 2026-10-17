@@ -14,6 +14,10 @@ import net.minecraft.world.item.ItemStack;
  * the plain machine has one input slot and the factories three, five, seven or nine. Copying by
  * index would drop outputs into input slots.
  *
+ * <p>{@code autoSplit} is the player's auto-split mode. It is not part of Mekanism's own config
+ * component state (that one carries only the side config and its eject flag), so it needs this
+ * carrier to survive a tier installer, exactly like the progress counters above.
+ *
  * <p>Everything here is a detached copy: the data has to outlive the block entity it came from.
  * {@code overflowItems} and {@code overflowAmounts} are parallel lists, same order, same length -
  * an array of amounts rather than one field per stack, because a single entry may exceed
@@ -30,11 +34,13 @@ public final class SieveUpgradeData implements IUpgradeData {
     public final long energy;
     public final int[] progress;
     public final int[] requiredTicks;
+    /** Whether the even-split mode was on, so a tier upgrade does not silently turn it off. */
+    public final boolean autoSplit;
     public final CompoundTag components;
 
     public SieveUpgradeData(ItemStack mesh, List<ItemStack> inputs, List<ItemStack> outputs,
             List<ItemStack> overflowItems, long[] overflowAmounts, ItemStack energyItem, long energy,
-            int[] progress, int[] requiredTicks, CompoundTag components) {
+            int[] progress, int[] requiredTicks, boolean autoSplit, CompoundTag components) {
         this.mesh = mesh;
         this.inputs = inputs;
         this.outputs = outputs;
@@ -44,6 +50,7 @@ public final class SieveUpgradeData implements IUpgradeData {
         this.energy = energy;
         this.progress = progress;
         this.requiredTicks = requiredTicks;
+        this.autoSplit = autoSplit;
         this.components = components;
     }
 }
